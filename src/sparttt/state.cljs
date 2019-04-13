@@ -4,8 +4,8 @@
   (atom
     {:text "Hello world!"
 
-     :menu
-     {:expanded false}
-
      :stage
-     {:current :home}}))
+     {:current :home}
+
+     :scenes
+     {:home nil}}))

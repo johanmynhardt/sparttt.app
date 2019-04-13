@@ -17,8 +17,9 @@
   (rum/mount (sparttt-app) el))
 
 (defn mount-app-element []
-  (when-let [el (get-app-element)]
-    (mount el)))
+  (let [el (get-app-element)]
+    (when el
+      (mount el))))
 
 ;; conditionally start your application based on the presence of an "app" element
 ;; this is particularly helpful for testing this ns without launching the app
