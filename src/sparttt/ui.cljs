@@ -8,19 +8,24 @@
 
 (def stage-config
   {:home
-   {:header {:visible true}
+   {:header {:visible true :title "Home"}
     :content {:visible true}
     :footer {:visible false}}
 
    :scan
-   {:header {:visible true}
+   {:header {:visible true :title "Capture QR"}
     :content {:visible true}
     :footer {:visible true :rows 2}}
 
    :timer
-   {:header {:visible true}
+   {:header {:visible true :title "Timer"}
     :content {:visible true}
-    :footer {:visible true :rows 1}}})
+    :footer {:visible true :rows 1}}
+
+   :settings
+   {:header {:visible true :title "Settings"}
+    :content {:visible true}
+    :footer {:visible true}}})
 
 (defn activate-stage
   [stage-key]
@@ -79,12 +84,12 @@
     [:div.widget.summary
      (into []
        [[:h3 "Summary"]
-        [:p "Stage: " (str current)]
-        [:p "Header: " (str (:header stage))]
-        [:p "Content: " (str (:content stage))]
-        [:p "Footer: " (str (:footer stage))]])]))
+        [:p "Stage: " [:code (str current)]]
+        [:p "Header: " [:code (str (:header stage))]]
+        [:p "Content: " [:code (str (:content stage))]]
+        [:p "Footer: " [:code (str (:footer stage))]]])]))
 
-(rum/defc stage-switcher
+(rum/defc stage-switcher-widget
   []
 
   [:div.widget.switcher
@@ -94,13 +99,38 @@
        keys
        (map
          (fn [stage-key]
-           [:a {:on-click #(activate-stage stage-key)}
-            (str stage-key) " -- "]))))])
+           [:button {:on-click #(activate-stage stage-key)}
+            (str stage-key)]))))])
+
+(rum/defc header-widget < rum/reactive
+  []
+  (let [stage
+        (->> stage-cursor
+          (rum/react)
+          :current
+          (get stage-config))]
+    [:div.widget.header
+     (into []
+       [[:h3 (-> stage :header :title)]])]))
+
+(rum/defc content-widget < rum/reactive
+  []
+  (into []
+    [[:div.middle.scroll.comfort.flex
+      [:p "oh hi"]]]))
+
+(rum/defc footer-widget < rum/reactive
+  []
+
+  (into []
+    [[:div.foot.comfort "Spartan Harriers"]]))
 
 (rum/defc draw-stage < rum/reactive [app-state]
-  (let [
-        _ (println "stage-state: " stage-cursor)
-        ]
-    [:div.stage
+  (let []
+    [:div.grid-container
      (stage-summary-widget)
-     (stage-switcher)]))
+     (stage-switcher-widget)
+
+     (header-widget)
+     (content-widget)
+     (footer-widget)]))

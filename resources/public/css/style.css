@@ -1,17 +1,147 @@
-/* some style */
+html,
+body {
+    padding: 0;
+    margin: 0;
+    font-family: 'DejaVu Sans', Arial, Helvetica, sans-serif;
+}
+
+html {
+    height: 100%;
+    font-family: sans-serif;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+textarea {
+    display: grid;
+    flex-direction: row;
+    width: 100%;
+    margin-right: 0em;
+    font-family: monospace;
+}
+
+button {
+    border: 1px solid #eee;
+    border-radius: 0.4em;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+}
 
 .widget {
     background-color: white;
-    border: 1px solid pink;
-    padding: 1em;
-    border-radius: 0.5em;
+    border: 0px solid pink;
+    padding: 1em 1em 1em 1em;
+    border-radius: 0.3em;
     box-shadow: 0px 0px 5px 5px rgba(0,0,0,0.2);
 }
 
-.widget {}
+.widget > h3 {
+    margin-top: 0;
+    margin-bottom: 0;
+}
 
 .summary {
     position: fixed;
     right: 1em;
     top: 1em;
+}
+
+.close {
+    background-color: black;
+    color: white;
+}
+
+.grid-container, #app {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.header {
+    color: white;
+    background-color: black;
+}
+
+.scroll {
+    overflow-y: scroll;
+}
+
+.comfort {
+    padding: 1em;
+}
+
+.pad-left {
+    padding-left: 1em;
+}
+
+.foot {
+    font-size: smaller;
+    text-align: center;
+    background-color: #eee;
+}
+
+.flex {
+    flex: 1;
+}
+
+.flex-grow {
+    /* flex: 1; */
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+}
+
+.card {
+    box-shadow: 0px 0px 7px 0px rgba(0, 0, 0, 0.4);
+    padding: 1em;
+    margin-bottom: 1em;
+    border-radius: 0.7em;
+}
+
+button {
+    margin: 0.3em;
+}
+
+button[disabled] {
+    color: #666;
+    background-color: #eee;
+}
+
+.warn {
+    background-color: orangered;
+}
+
+.primary {
+    color: white;
+    background-color: dodgerblue;
+    border: 1px solid white;
+}
+
+.modal {
+    position: fixed;
+    margin-left: auto;
+    margin-right: auto;
+    width: 600px;
+    left: calc(50% - 300px);
+    top: calc(20%);
+    background-color: white;
+
+    /*border: 1px solid black;*/
+}
+
+textarea.js-modal-text {
+    resize: vertical;
+}
+
+table {
+    border: 1px solid #eee;
+}
+
+td {
+    border: 0.5px solid #eee;
 }
