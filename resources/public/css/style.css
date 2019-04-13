@@ -1,0 +1,17 @@
+/* some style */
+
+.widget {
+    background-color: white;
+    border: 1px solid pink;
+    padding: 1em;
+    border-radius: 0.5em;
+    box-shadow: 0px 0px 5px 5px rgba(0,0,0,0.2);
+}
+
+.widget {}
+
+.summary {
+    position: fixed;
+    right: 1em;
+    top: 1em;
+}
