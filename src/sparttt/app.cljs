@@ -11,7 +11,7 @@
   (gdom/getElement "app"))
 
 (rum/defc sparttt-app < rum/reactive []
-  (ui/draw-stage state/app-state))
+  (ui/draw-stage))
 
 (defn mount [el]
   (rum/mount (sparttt-app) el))
