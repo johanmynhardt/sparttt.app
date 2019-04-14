@@ -2,7 +2,8 @@
   (:require
     [rum.core :as rum]
     [sparttt.stage :as stage]
-    [sparttt.scenes.home]))
+    [sparttt.scenes.home]
+    [sparttt.scenes.settings]))
 
 (rum/defc stage-summary-widget < rum/reactive
   []
@@ -50,10 +51,11 @@
 (rum/defc draw-stage < rum/reactive
   []
   (stage/register-scene :home sparttt.scenes.home/scene)
+  (stage/register-scene :settings sparttt.scenes.settings/scene)
 
   (let []
     [:div.grid-container
-     (stage-summary-widget)
+     ;(stage-summary-widget)
      (stage-switcher-widget)
 
      (header-widget)

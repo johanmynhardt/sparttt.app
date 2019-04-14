@@ -57,7 +57,7 @@
     (cond
       (get stage-config stage-key)
       (do
-        (println "activate-stage request applied: " (assoc result :new-key stage-key))
+        ;(println "activate-stage request applied: " (assoc result :new-key stage-key))
         (swap! stage-cursor assoc :current stage-key))
 
       :else

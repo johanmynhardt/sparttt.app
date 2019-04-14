@@ -4,6 +4,7 @@
  ;; Set the server port https://figwheel.org/config-options#ring-server-options
  ;; :ring-server-options {:port 9500}
 
+ :ring-server-options {:host "192.168.8.101"}
  ;; Change the target directory from the "target" to "resources"
  ;; https://figwheel.org/config-options#target-dir
  :target-dir "resources"
