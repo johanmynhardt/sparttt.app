@@ -159,3 +159,16 @@ table {
 td {
     border: 0.5px solid #eee;
 }
+
+.actions {
+    margin-top: 0.5em;
+    padding-top: 0.5em;
+    border-top: 1px solid #dddddd;
+}
+
+.actions > button {
+    font-size: medium;
+    color: black;
+    background-color: transparent;
+    border-radius: 3px;
+}
