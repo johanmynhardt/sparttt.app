@@ -3,7 +3,8 @@
     [rum.core :as rum]
     [sparttt.stage :as stage]
     [sparttt.scenes.home]
-    [sparttt.scenes.settings]))
+    [sparttt.scenes.settings]
+    [sparttt.scenes.scan]))
 
 (rum/defc stage-summary-widget < rum/reactive
   []
@@ -52,6 +53,7 @@
   []
   (stage/register-scene :home sparttt.scenes.home/scene)
   (stage/register-scene :settings sparttt.scenes.settings/scene)
+  (stage/register-scene :scan sparttt.scenes.scan/scene)
 
   (let []
     [:div.grid-container
