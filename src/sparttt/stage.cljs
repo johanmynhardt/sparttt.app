@@ -77,7 +77,10 @@
     [:div.scene
      (cond
        (some? scene)
-       scene
+       (cond
+         (fn? scene) (scene)
+
+         :else scene)
 
        :else
        [:b.warn.shadow
