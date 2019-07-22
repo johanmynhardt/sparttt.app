@@ -22,9 +22,10 @@
   :aliases
   {"fig" ["trampoline" "run" "-m" "figwheel.main"]
    "fig:build" ["trampoline" "run" "-m" "figwheel.main" "-b" "dev" "-r"]
-   "fig:min" ["run" "-m" "figwheel.main" "-O" "advanced" "-bo" "dev"]
+   "fig:min" ["run" "-m" "figwheel.main" "-O" "advanced" "-bo" "min"]
    "fig:test" ["run" "-m" "figwheel.main" "-co" "test.cljs.edn" "-m" sparttt.test-runner]
-   "build-dev" ["trampoline" "run" "-m" "figwheel.main" "-b" "dev" "-r"]}
+   "build-dev" ["trampoline" "run" "-m" "figwheel.main" "-b" "dev" "-r"]
+   "fig:min:pc" ["run" "-m" "figwheel.main" "-pc" "-b" "min" "-r"]}
 
   :profiles
   {:dev

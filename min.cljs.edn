@@ -1,0 +1,22 @@
+{:foreign-libs
+ [{
+   :file "resources/public/libs/instascan.min.js"
+   :file-min "resources/public/libs/instascan.min.js"
+   :provides ["Instascan" "Instascan.Scanner" "EventEmitter"]
+   :global-exports
+   {Instascan.Scanner Instascan.Scanner}}
+
+  {:file "resources/public/libs/qrcode.min.js"
+   :provides ["qrcode"]
+   :global-exports {qrcode QRCode}}]
+
+ :pseudo-names true
+ :pretty-print true
+
+ :optimizations :advanced
+ :output-to "resources/public/cljs-out/dev-main.js"
+ :externs ["resources/public/libs/ext.js"]
+
+
+ :main sparttt.app}
+
