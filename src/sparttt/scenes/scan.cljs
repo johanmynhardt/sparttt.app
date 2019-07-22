@@ -3,7 +3,7 @@
     [cljs-time.coerce :as time.coerce]
     [cljs-time.core :as time]
     [cljs.pprint]
-    [instascan :as Instascan]
+    [Instascan]
     [rum.core :as rum]
     [sparttt.repository :as repository]))
 
@@ -11,9 +11,29 @@
 (def athlete-sequence (atom nil))
 (def last-capture (atom nil))
 
+(def ascanner (atom nil))
+(add-watch ascanner :scanner
+  (fn [k r o n]
+    (println "scanner changed: " o " -> " n)
+    (when (and (not= o n) (nil? n))
+      (.stop o))))
+
+(defn get-scanner []
+  (let [preview (.querySelector js/document "#preview")]
+    (when (or
+            (nil? (deref ascanner))
+            ;(empty? (.-innerHTML preview))
+            )
+      (let [_ (println "initiate scanner from preview")
+            ;_ (println "prInstascan: " (js/Instascan.Scanner. nil))
+            scnr (new js/Instascan.Scanner (clj->js {:video preview}))
+            ]
+        (reset! ascanner scnr))))
+  (deref ascanner))
+
 (defn capture-qr [on-scan]
   (let [preview (.querySelector js/document "#preview")
-        scanner (Instascan/Scanner. (clj->js {:video preview}))]
+        scanner (get-scanner)]
     (->
       scanner
       (.addListener "scan"
@@ -30,7 +50,7 @@
       (.removeAttribute "hidden"))
 
     (->
-      (.getCameras Instascan/Camera)
+      (.getCameras js/Instascan.Camera)
       (.then
         (fn [cms]
           (let [cam (first cms)]
@@ -71,9 +91,14 @@
     (reset! last-capture value)))
 
 (rum/defc scene < rum/reactive []
+  (reset! ascanner nil)
   (let [det (rum/react athlete-details)
-        seq (rum/react athlete-sequence)]
+        seq (rum/react athlete-sequence)
+        ]
     [:div
+     [:button {:on-click #(let [scanner (get-scanner)]
+                            (println "Stopping scanner " scanner)
+                            (.stop scanner))} "stop scan"]
      [:video#preview {:hidden true}]
      [:div.card
       [:div.title [:li.fas.fa-address-card] " " "Capture Athlete"]
