@@ -1,10 +1,12 @@
 # sparttt.app
 
-FIXME: Write a one-line description of your library/project.
+A running time trial app written in ClojureScript.
 
 ## Overview
 
-FIXME: Write a paragraph about the library/project and highlight its goals.
+The goal of this application is to be an improved rewrite of the first
+iteration that was done in JavaScript. It became quite large and hard
+to maintain in vanilla Javascript.
 
 ## Development
 
@@ -32,6 +34,6 @@ To create a production build run:
 
 ## License
 
-Copyright © 2018 FIXME
+Copyright © 2019 Johan Mynhardt
 
 Distributed under the Eclipse Public License either version 1.0 or (at your option) any later version.

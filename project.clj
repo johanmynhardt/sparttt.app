@@ -1,6 +1,6 @@
 (defproject sparttt.app "0.1.0-SNAPSHOT"
-  :description "FIXME: write this!"
-  :url "http://example.com/FIXME"
+  :description "Running Time Trial app in ClojureScript."
+  :url "https://github.com/johanmynhardt/sparttt.app/"
   :license
   {:name "Eclipse Public License"
    :url "http://www.eclipse.org/legal/epl-v10.html"}
