@@ -1,19 +1,6 @@
 (ns sparttt.scenes.settings
   (:require
-    [rum.core :as rum]
-    [instascan]
-    [qrcode]))
-
-
-(defn qr [id text]
-  (let [e (js/QRCode. id)]
-    (-> e (.makeCode text))))
-
-#_(->
-  (.getCameras instascan/Camera)
-  (.then (fn [cameras] (println "got cameras: " cameras))))
-
-
+    [rum.core :as rum]))
 
 (rum/defc scene < rum/reactive []
 
@@ -37,9 +24,4 @@
     [:div.title [:li.fas.fa-chart-bar] " " "Session"]
     [:div.content
      [:ul
-      [:li "purge data"]]]]
-
-   [:div#foo
-    [:span
-     {:style {:display "none"}}
-     (js/setTimeout (fn [] (qr "foo" "hello")) 100)]]])
+      [:li "purge data"]]]]])
