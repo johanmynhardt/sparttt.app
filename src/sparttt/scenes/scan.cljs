@@ -4,6 +4,8 @@
     [cljs-time.core :as time]
     [cljs.pprint]
     [Instascan]
+    [Instascan.Camera]
+    [Instascan.Scanner]
     [rum.core :as rum]
     [sparttt.repository :as repository]))
 
@@ -18,48 +20,68 @@
     (when (and (not= o n) (nil? n))
       (.stop o))))
 
+(defn get-video-preview []
+  (.querySelector js/document "#preview"))
+
+(defn get-video-modal []
+  (.querySelector js/document "div.video-modal"))
+
+(defn show-video-modal []
+  (->
+    (get-video-modal)
+    (.removeAttribute "hidden")))
+
+(defn hide-video-modal []
+  (->
+    (get-video-modal)
+    (.setAttribute  "hidden" true)))
+
+
+
+
 (defn get-scanner []
-  (let [preview (.querySelector js/document "#preview")]
-    (when (or
-            (nil? (deref ascanner))
-            ;(empty? (.-innerHTML preview))
-            )
-      (let [_ (println "initiate scanner from preview")
-            ;_ (println "prInstascan: " (js/Instascan.Scanner. nil))
-            scnr (new js/Instascan.Scanner (clj->js {:video preview}))
-            ]
+  (let [preview (get-video-preview)]
+    (when (nil? (deref ascanner))
+      (let [scnr
+            (new js/Instascan.Scanner.
+              (clj->js
+                {:video preview
+                 :mirror false}))]
         (reset! ascanner scnr))))
   (deref ascanner))
 
 (defn capture-qr [on-scan]
-  (let [preview (.querySelector js/document "#preview")
-        scanner (get-scanner)]
+  (let [scanner (get-scanner)]
     (->
       scanner
       (.addListener "scan"
         (fn [content]
           (.stop scanner)
-          (->
-            preview
-            (.setAttribute "hidden" true))
+          (hide-video-modal)
           (println "got content: " content)
           (on-scan content))))
-
-    (->
-      preview
-      (.removeAttribute "hidden"))
 
     (->
       (.getCameras js/Instascan.Camera)
       (.then
         (fn [cms]
-          (let [cam (first cms)]
+          (let [selected-cam @sparttt.scenes.settings/selected-camera
+
+                cam
+                (or
+                  (first (filter #(= selected-cam (.-id %)) cms))
+                  (first cms))]
             (when cam
+              (println "cam.id: " (.-id cam))
+              (println "cam.name: " (.-name cam))
+
               (-> scanner
-                (.start cam)))))))))
+                (.start cam)))))))
+
+    (show-video-modal)))
 
 (defn capture-athlete []
-  ;; TODO: use instascan to capture and verify athlete details.
+  ;; TODO: use regex from V1 to verify athlete name/id.
   (capture-qr
     (fn [content]
       (let [[_ nm id] (re-matches #"(.*):(.*)" content)]
@@ -70,7 +92,7 @@
           :tstamp (time.coerce/to-string (time/now)))))))
 
 (defn capture-sequence []
-  ;; TODO: use instascan to capture and verify sequence
+  ;; TODO: use regex from V1 to verify sequence
   (capture-qr
     (fn [content]
       (swap! athlete-sequence assoc
@@ -94,12 +116,18 @@
   (reset! ascanner nil)
   (let [det (rum/react athlete-details)
         seq (rum/react athlete-sequence)
+        last (rum/react last-capture)
         ]
     [:div
-     [:button {:on-click #(let [scanner (get-scanner)]
-                            (println "Stopping scanner " scanner)
-                            (.stop scanner))} "stop scan"]
-     [:video#preview {:hidden true}]
+
+     [:div.video-modal {:hidden true}
+      [:video#preview]
+      [:button {:on-click
+                #(let [scanner (get-scanner)]
+                   (println "Stopping scanner " scanner)
+                   (.stop scanner)
+                   (hide-video-modal))} "stop scan"]]
+
      [:div.card
       [:div.title [:li.fas.fa-address-card] " " "Capture Athlete"]
       [:div.content
@@ -125,7 +153,7 @@
      (when (and det seq)
        [[:button {:on-click persist-details} "persist"] "|" [:button {:on-click discard-details} "discard"]])
 
-     (when @last-capture
+     (when last
        [:div.card
         [:div.title [:li.fas.fa-check] " " "Last Stored"]
-        [:p (with-out-str (cljs.pprint/pprint @last-capture))]])]))
+        [:p (with-out-str (cljs.pprint/pprint last))]])]))
