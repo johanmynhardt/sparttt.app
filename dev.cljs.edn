@@ -1,4 +1,25 @@
 ^{:watch-dirs ["test" "src"]
   :css-dirs ["resources/public/css"]
   :auto-testing true}
-{:main sparttt.app}
+
+{:foreign-libs
+ [{
+   :file "resources/libs/instascan.min.js"
+   :file-min "resources/libs/instascan.min.js"
+   :provides ["Instascan" "Instascan.Scanner" "Instascan.Camera" "EventEmitter"]
+   :global-exports
+   {Instascan.Scanner Instascan.Scanner}}
+
+  {:file "resources/libs/qrcode.min.js"
+   :provides ["qrcode"]
+   :global-exports {qrcode QRCode}}]
+
+ :pseudo-names false
+ :pretty-print false
+
+ :optimizations :none
+ :output-to "resources/public/cljs-out/dev-main.js"
+ :externs ["resources/libs/ext.js"]
+
+
+ :main sparttt.app}
