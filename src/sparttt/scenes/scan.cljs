@@ -112,6 +112,11 @@
     (discard-details)
     (reset! last-capture value)))
 
+(def touch-icon-style
+  {:style
+   {:font-size 100
+    :vertical-align "middle"}})
+
 (rum/defc scene < rum/reactive []
   (reset! ascanner nil)
   (let [det (rum/react athlete-details)
@@ -128,30 +133,30 @@
                    (.stop scanner)
                    (hide-video-modal))} "stop scan"]]
 
-     [:div.card
-      [:div.title [:li.fas.fa-address-card] " " "Capture Athlete"]
-      [:div.content
-       (when-not det
-         [:i "[ not captured ]"])
-       (when det
-         (str det))]
-      [:div.actions
-       [:button {:on-click capture-athlete} "Capture Athlete" (when det " again")]]]
+     (when-not det
+       [:div.card.with-gradient {:on-click capture-athlete}
+        [:div [:li.fas.fa-address-card touch-icon-style]
+         [:li.no-list "Capture Athlete"]]])
 
-     [:div.card
-      [:div.title [:li.fas.fa-hashtag] " " "Capture Sequence"]
-      [:div.content
-       (when-not seq
-         [:i "[ not captured ]"])
-       (when seq
-         (str seq))]
-      [:div.actions
-       [:button {:on-click capture-sequence} "Capture Sequence"]]]
+     (when (and det (not seq))
+       [:div.card.with-gradient {:on-click capture-sequence}
+        [:div [:li.fas.fa-hashtag touch-icon-style]
+         [:li.no-list "Capture Sequence"]]])
 
 
 
      (when (and det seq)
-       [[:button {:on-click persist-details} "persist"] "|" [:button {:on-click discard-details} "discard"]])
+       [:div.card
+        [:div
+         [:div [:b "Name:"]]
+         [:div [:p (:name det)]]
+         #_[:br]
+         [:div [:b "Sequence:"] " " (:seq seq)]]
+        [:hr]
+        [:button {:on-click persist-details}
+         [:li.fas.fa-save] " persist"] "|"
+        [:button {:on-click discard-details}
+         [:li.fas.fa-trash] " " "discard"]])
 
      (when last
        [:div.card
