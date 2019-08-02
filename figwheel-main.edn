@@ -6,7 +6,9 @@
 
  ;:connect-url "wss://dev.johan:443/figwheel-connect"
  :ring-server-options
- {:host "192.168.8.102"
+ {
+  :host "localhost"
+  ;:host "localhost"
   ;:host "dev.johan"
   ;:port 443
   }

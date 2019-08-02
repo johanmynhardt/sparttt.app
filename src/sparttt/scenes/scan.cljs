@@ -36,9 +36,6 @@
     (get-video-modal)
     (.setAttribute  "hidden" true)))
 
-
-
-
 (defn get-scanner []
   (let [preview (get-video-preview)]
     (when (nil? (deref ascanner))
@@ -50,17 +47,10 @@
         (reset! ascanner scnr))))
   (deref ascanner))
 
-(defn capture-qr [on-scan]
-  (let [scanner (get-scanner)]
-    (->
-      scanner
-      (.addListener "scan"
-        (fn [content]
-          (.stop scanner)
-          (hide-video-modal)
-          (println "got content: " content)
-          (on-scan content))))
-
+(def camera-atom (atom nil))
+(defn with-camera [when-ready-fn]
+  (cond
+    (nil? @camera-atom)
     (->
       (.getCameras js/Instascan.Camera)
       (.then
@@ -74,11 +64,26 @@
             (when cam
               (println "cam.id: " (.-id cam))
               (println "cam.name: " (.-name cam))
+              (when-ready-fn (reset! camera-atom cam)))))))
 
-              (-> scanner
-                (.start cam)))))))
+    :else
+    (when-ready-fn @camera-atom)))
 
-    (show-video-modal)))
+(defn capture-qr [on-scan]
+  (let [scanner (get-scanner)]
+    (->
+      scanner
+      (.addListener "scan"
+        (fn [content]
+          (.stop scanner)
+          (hide-video-modal)
+          (println "got content: " content)
+          (on-scan content))))
+    (with-camera
+      (fn [camera]
+        (-> scanner
+          (.start camera))
+        (show-video-modal)))))
 
 (defn capture-athlete []
   ;; TODO: use regex from V1 to verify athlete name/id.
