@@ -20,6 +20,20 @@
     cljs.reader/read-string
     (get col-key)))
 
+(defn batch-write
+  "Accepts a collection of entries {:col-key entry}.
+
+  Eg: (batch-write
+         [{:journal {:on-scan {:content 1}}},
+          ...])"
+  [records]
+  (doseq [[col-key entry] (map first records)]
+    (swap! repo update col-key
+      (fn [col] (conj col entry))))
+
+  (aset js/localStorage storage-key
+    (deref repo)))
+
 (defn save-scan [val]
   (write-to-local-storage :scans val))
 
