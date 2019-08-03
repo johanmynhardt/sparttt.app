@@ -7,7 +7,8 @@
     [Instascan.Camera]
     [Instascan.Scanner]
     [rum.core :as rum]
-    [sparttt.repository :as repository]))
+    [sparttt.repository :as repository]
+    [sparttt.scenes.settings :as settings]))
 
 (def athlete-details (atom nil))
 (def athlete-sequence (atom nil))
@@ -52,10 +53,10 @@
   (cond
     (nil? @camera-atom)
     (->
-      (.getCameras js/Instascan.Camera)
+      (Instascan.Camera/getCameras)
       (.then
         (fn [cms]
-          (let [selected-cam @sparttt.scenes.settings/selected-camera
+          (let [selected-cam @settings/selected-camera
 
                 cam
                 (or
@@ -167,10 +168,3 @@
        [:div.card
         [:div.title [:li.fas.fa-check] " " "Last Stored"]
         [:p (with-out-str (cljs.pprint/pprint last))]])]))
-
-;; todo: use when lap timing functionality becomes available.
-(defn race-duration [genesis finish-inst]
-  (cljs-time.coerce/from-long
-    (time/in-millis
-      (time/interval
-        genesis finish-inst))))

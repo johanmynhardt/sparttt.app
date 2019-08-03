@@ -3,14 +3,14 @@
     [rum.core :as rum]
     [clojure.string :as str]
     [Instascan]
-    [Instascan.Camera :as camera]
+    [Instascan.Camera]
     [clojure.string :as str]))
 
 (defonce cameras (atom nil))
 (defonce selected-camera (atom nil))
 
 (->
-  (camera/getCameras)
+  (Instascan.Camera/getCameras)
   (.then
     (fn [cms]
       (doseq [cam cms]

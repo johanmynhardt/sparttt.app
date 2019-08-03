@@ -2,7 +2,7 @@
  [{
    :file "resources/libs/instascan.min.js"
    :file-min "resources/libs/instascan.min.js"
-   :provides ["Instascan" "Instascan.Scanner" "EventEmitter"]
+   :provides ["Instascan" "Instascan.Scanner" "Instascan.Camera" "EventEmitter"]
    :global-exports
    {Instascan.Scanner Instascan.Scanner}}
 
