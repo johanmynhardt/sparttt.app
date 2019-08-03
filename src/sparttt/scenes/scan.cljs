@@ -1,7 +1,7 @@
 (ns sparttt.scenes.scan
   (:require
-    [cljs-time.coerce :as time.coerce]
     [cljs-time.core :as time]
+    [cljs-time.instant]
     [cljs.pprint]
     [Instascan]
     [Instascan.Camera]
@@ -94,7 +94,7 @@
         (swap! athlete-details assoc
           :name nm
           :id id
-          :tstamp (time.coerce/to-string (time/now)))))))
+          :tstamp (time/now))))))
 
 (defn capture-sequence []
   ;; TODO: use regex from V1 to verify sequence
@@ -102,7 +102,7 @@
     (fn [content]
       (swap! athlete-sequence assoc
         :seq content
-        :tstamp (time.coerce/to-string (time/now))))))
+        :tstamp (time/now)))))
 
 (defn discard-details []
   (reset! athlete-details nil)
@@ -112,7 +112,7 @@
   (let [value
         {:athlete @athlete-details
          :seq @athlete-sequence
-         :tstamp (time.coerce/to-string (time/now))}]
+         :tstamp (time/now)}]
     (repository/save-scan value)
     (discard-details)
     (reset! last-capture value)))
@@ -167,3 +167,10 @@
        [:div.card
         [:div.title [:li.fas.fa-check] " " "Last Stored"]
         [:p (with-out-str (cljs.pprint/pprint last))]])]))
+
+;; todo: use when lap timing functionality becomes available.
+(defn race-duration [genesis finish-inst]
+  (cljs-time.coerce/from-long
+    (time/in-millis
+      (time/interval
+        genesis finish-inst))))
