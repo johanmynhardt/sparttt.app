@@ -97,10 +97,10 @@ button {
 }
 
 .card {
-    box-shadow: 0px 0px 7px 0px rgba(0, 0, 0, 0.4);
+    box-shadow: 0px 0px 3px 0px rgba(0, 0, 0, 0.4);
     padding: 0.8em;
     margin-bottom: 1em;
-    border-radius: 0.7em;
+    border-radius: 0.3em;
 }
 
 .card > .title {
@@ -124,7 +124,6 @@ button[disabled] {
 }
 
 .warn {
-    border-radius: 0.5em;
     background-color: orangered;
     color: white;
     padding: 1em;
@@ -214,4 +213,20 @@ td {
     /*background-color: #f5f5f5;*/
     background-color: #fff;
     box-shadow: 0 0 4px 0 rgba(2, 2, 2, 0.6);
+}
+
+table {
+    min-width: 100%;
+    border-collapse: collapse;
+}
+
+th {
+    color: white;
+    background-color: #333;
+    text-align: left;
+    padding: 0.3em;
+}
+
+td {
+    padding: 0.3em;
 }

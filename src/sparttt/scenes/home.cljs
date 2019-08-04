@@ -5,10 +5,16 @@
 
 (rum/defc scene < rum/reactive []
   (let [scans (repository/list-scans)]
-    [:div "Home stuff here..."
+    [:div
+     [:h2 "Overview"]
 
-     [:p "scans: " (count scans)]
+     [:table #_{:width "100%"}
+      [:tr
+       [:td {:col-span 2} "Number of scans: "] [:td (count scans)]]
 
-     [:ul
-      (for [scan scans]
-        [:li [:code (with-out-str (cljs.pprint/pprint scan))]])]]))
+      [:tr
+       [:th "Seq"] [:th "Name"] [:th "ID"]]
+      (for [{{seq :seq} :seq
+             {:keys [id name]} :athlete} scans]
+        [:tr
+         [:td seq] [:td name] [:td id]])]]))

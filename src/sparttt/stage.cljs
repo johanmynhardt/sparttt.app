@@ -87,5 +87,5 @@
          :else scene)
 
        :else
-       [:b.warn.shadow
+       [:div.card.warn
         (str "No scene for " active-key)])]))
