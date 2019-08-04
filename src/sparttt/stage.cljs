@@ -9,28 +9,32 @@
     {:visible true
      :title "Home"}
     :content {:visible true}
-    :footer {:visible true}}
+    :footer {:visible true}
+    :ui {:icon :li.fas.fa-home}}
 
    :scan
    {:header
     {:visible true
      :title "Capture QR"}
     :content {:visible true}
-    :footer {:visible false :rows 2}}
+    :footer {:visible false :rows 2}
+    :ui {:icon :li.fas.fa-address-card}}
 
    :timer
    {:header
     {:visible true
      :title "Timer"}
     :content {:visible true}
-    :footer {:visible false}}
+    :footer {:visible false}
+    :ui {:icon :li.fas.fa-stopwatch}}
 
    :settings
    {:header
     {:visible true
      :title "Settings"}
     :content {:visible true}
-    :footer {:visible true}}})
+    :footer {:visible true}
+    :ui {:icon :li.fas.fa-cog}}})
 
 (def stage-cursor
   (rum/cursor-in state/app-state [:stage]))

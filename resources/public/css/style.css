@@ -195,3 +195,23 @@ td {
     background-color: transparent;
     border-radius: 3px;
 }
+
+.switcher {
+    padding: 0.3em;
+}
+
+.switcher > li {
+    font-size: 20pt;
+    display: inline-block;
+    margin: 0.2em;
+    padding: 0.3em;
+    box-shadow: 0 0 1px 0 rgba(2, 2, 2, 0.2);
+    width: 22pt;
+    height: 22pt;
+    text-align: center;
+}
+.switcher > li.active {
+    /*background-color: #f5f5f5;*/
+    background-color: #fff;
+    box-shadow: 0 0 4px 0 rgba(2, 2, 2, 0.6);
+}

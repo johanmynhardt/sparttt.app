@@ -17,17 +17,22 @@
      [:p "Content: " [:code (str (:content stage))]]
      [:p "Footer: " [:code (str (:footer stage))]]]))
 
-(rum/defc stage-switcher-widget
+(rum/defc stage-switcher-widget < rum/reactive
   []
+  (let [active-stage-key (stage/active-stage-key)
+        is-active? (partial = active-stage-key)
+        icon (fn [sk] (-> stage/stage-config sk :ui :icon))]
 
-  [:div.widget.switcher
-   (->>
-     (keys stage/stage-config)
-     (map
-       (fn [stage-key]
-         [:button
-          {:on-click #(stage/activate-stage stage-key)}
-          (str stage-key)])))])
+    [:div.widget.switcher
+     (->>
+       (keys stage/stage-config)
+       (map
+         (fn [stage-key]
+           [:li
+            {:on-click #(stage/activate-stage stage-key)
+             :class [(when (is-active? stage-key) :active)]}
+            (let [icon (icon stage-key)]
+              (if icon [icon] (str stage-key)))])))]))
 
 (rum/defc header-widget < rum/reactive
   []
