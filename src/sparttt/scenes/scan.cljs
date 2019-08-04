@@ -9,7 +9,9 @@
     [rum.core :as rum]
     [sparttt.repository :as repository]
     [sparttt.scenes.settings :as settings]
-    [sparttt.browser-assist :as browser-assist]))
+    [sparttt.browser-assist :as browser-assist]
+    [sparttt.ui-elements :as ui]
+    [clojure.string :as str]))
 
 (def athlete-details (atom nil))
 (def athlete-sequence (atom nil))
@@ -49,43 +51,40 @@
         (reset! ascanner scnr))))
   (deref ascanner))
 
-(def camera-atom (atom nil))
 (defn with-camera [when-ready-fn]
-  (cond
-    (nil? @camera-atom)
-    (->
-      (Instascan.Camera/getCameras)
-      (.then
-        (fn [cms]
-          (let [selected-cam @settings/selected-camera
-
-                cam
-                (or
-                  (first (filter #(= selected-cam (.-id %)) cms))
-                  (first cms))]
-            (when cam
-              (println "cam.id: " (.-id cam))
-              (println "cam.name: " (.-name cam))
-              (when-ready-fn (reset! camera-atom cam)))))))
-
-    :else
-    (when-ready-fn @camera-atom)))
+  (let [selected-cam @settings/selected-camera]
+    (cond
+      (and selected-cam (pos? (count selected-cam)))
+      (->
+        (Instascan.Camera/getCameras)
+        (.then
+          (fn [cms]
+            (let [cam
+                  (first (filter #(= selected-cam (.-id %)) cms))]
+              (println "selected camera in inner let: " (.-name cam))
+              (when cam
+                (println "cam.id: " (.-id cam))
+                (println "cam.name: " (.-name cam))
+                (when-ready-fn cam))))))
+      :else
+      (js/alert "No camera selected!"))))
 
 (defn capture-qr [on-scan]
   (let [scanner (get-scanner)]
+    (with-camera
+      (fn [camera]
+        (-> scanner
+          (.start camera))
+        (show-video-modal)))
     (->
       scanner
       (.addListener "scan"
         (fn [content]
           (.stop scanner)
+          (.removeAllListeners scanner)
           (hide-video-modal)
           (repository/journal-append {:inst (time/now) :on-scan content})
-          (on-scan content))))
-    (with-camera
-      (fn [camera]
-        (-> scanner
-          (.start camera))
-        (show-video-modal)))))
+          (on-scan content))))))
 
 (def athlete-regex #"^([\w\ \-'`]+){1}:(.+){1}$")
 (defn capture-athlete []
@@ -102,7 +101,9 @@
           :else
           (do
             (browser-assist/speak "Sorry, I couldn't read a user from the input!")
-            (js/alert (str "`" content "` did not match `athlete-regex`."))))))))
+            (js/setTimeout
+              #(js/alert (str "`" content "` did not match `athlete-regex`.")))
+            nil))))))
 
 (def sequence-regex #"^(\d+)$")
 (defn capture-sequence []
@@ -149,13 +150,13 @@
 
      [:div.video-modal {:hidden true}
       [:video#preview]
-      [:button
-       {:on-click
-        #(let [scanner (get-scanner)]
-           (println "Stopping scanner " scanner)
-           (.stop scanner)
-           (hide-video-modal))}
-       [:li.fas.fa-stop] " stop scan"]]
+      (ui/button "Stop"
+        {:icon :stop
+         :on-click
+         #(let [scanner (get-scanner)]
+            (println "Stopping scanner " scanner)
+            (hide-video-modal)
+            (.stop scanner))})]
 
      (when-not athlete
        [:div.card.with-gradient {:on-click capture-athlete}
@@ -175,12 +176,17 @@
          #_[:br]
          [:div [:b "Sequence:"] " " (:seq sequence)]]
         [:hr]
-        [:button {:on-click persist-details}
-         [:li.fas.fa-save] " persist"] " "
-        [:button {:on-click discard-details}
-         [:li.fas.fa-trash] " " "discard"]])
+        (ui/button "Save"
+          {:icon :save
+           :class [:primary]
+           :on-click persist-details})
+        " "
+        (ui/button "Discard"
+          {:icon :trash
+           :class [:warn]
+           :on-click discard-details})])
 
      (when last-athlete
-       [:div.card
+       [:div.card.success
         [:div.title [:li.fas.fa-check] " " "Last Stored"]
         [:p (with-out-str (cljs.pprint/pprint last-athlete))]])]))

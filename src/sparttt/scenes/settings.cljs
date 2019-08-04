@@ -1,28 +1,34 @@
 (ns sparttt.scenes.settings
   (:require
-    [rum.core :as rum]
+    [cljs-time.coerce :as time.coerce]
+    [cljs-time.core :as time]
     [clojure.string :as str]
     [Instascan]
     [Instascan.Camera]
-    [clojure.string :as str]
+    [rum.core :as rum]
     [sparttt.ui-elements :as ui]
+    [sparttt.browser-assist :as browser-assist]
     [sparttt.repository :as repository]))
 
 (defonce cameras (atom nil))
 (defonce selected-camera (atom nil))
+(add-watch selected-camera :selected-camera
+  (fn [k r o n]
+    (println "watch: selected camera: " n)))
 
-(->
-  (Instascan.Camera/getCameras)
-  (.then
-    (fn [cms]
-      (doseq [cam cms]
-        (when cam
-          (println "cam.id: " (.-id cam))
-          (println "cam.name: " (.-name cam))
-          (println "----------------")
-          (swap! cameras conj
-            {:id (.-id cam)
-             :name (.-name cam)}))))))
+(when (or (nil? @cameras) (not (seq @cameras)))
+  (->
+    (Instascan.Camera/getCameras)
+    (.then
+      (fn [cms]
+        (doseq [cam cms]
+          (when cam
+            (println "cam.id: " (.-id cam))
+            (println "cam.name: " (.-name cam))
+            (println "----------------")
+            (swap! cameras conj
+              {:id (.-id cam)
+               :name (.-name cam)})))))))
 
 (rum/defc scene < rum/reactive []
   (let [cameras (rum/react cameras)
@@ -39,7 +45,7 @@
          (fn [e]
            (let [v (-> e (.-target) (.-value))]
              (reset! selected-camera
-               (if (str/blank? v) nil
+               (if (str/blank? v) ""
                  (str/trim v)))))
 
          :value cam}
@@ -53,15 +59,31 @@
      [:div.card
       [:div.title [:li.fas.fa-database] " " "Data"]
       [:div.content
+
+       [:div [:p "Export Actions"]
+        (ui/button "Export EDN"
+          {:icon :file-export
+           :on-click
+           #(browser-assist/initiate-download :edn @repository/repo
+              (str "repo-data-" (time.coerce/to-local-date (time/now))))})
+
+        (ui/button "Scan CSV"
+          {:icon :file
+           :on-click #()})]
+
+       [:div [:p "Destructive Actions"]
+
+        (ui/button "Purge Data"
+          {:icon :trash
+           :class [:warn]
+           :on-click
+           #(repository/purge
+              (js/confirm "All the data will be wiped! Are you sure?"))})]]]
+
+     #_[:div.card
+      [:div.title [:li.fas.fa-chart-bar] " " "Session"]
+      [:div.content
        [:ul
         [:li "list"]
         [:li "export csv"]
-        [:li "export journal"]]]]
-
-     [:div.card
-      [:div.title [:li.fas.fa-chart-bar] " " "Session"]
-      [:div.content
-       (ui/button "Purge Data"
-         {:on-click #(repository/purge (js/confirm "All the data will be wiped! Are you sure?"))})
-       [:ul
-        [:li "purge data"]]]]]))
+        [:li "export journal"]]]]]))
