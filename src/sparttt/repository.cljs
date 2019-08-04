@@ -2,10 +2,12 @@
   (:require
     [cljs.reader]))
 
+(def empty-repo
+  {:scans []
+   :journal []})
+
 (defonce repo
-  (atom
-    {:scans []
-     :journal []}))
+  (atom empty-repo))
 
 (def ^:dynamic storage-key "tt-repo")
 
@@ -14,10 +16,14 @@
     (swap! repo update col-key
       (fn [col] (conj col val)))))
 
-(defn- read-from-local-storage [col-key]
+(defn- read-repo []
   (-> js/localStorage
     (aget storage-key)
-    cljs.reader/read-string
+    cljs.reader/read-string))
+
+(defn- read-from-local-storage [col-key]
+  (->
+    (read-repo)
     (get col-key)))
 
 (defn batch-write
@@ -34,6 +40,13 @@
   (aset js/localStorage storage-key
     (deref repo)))
 
+(defn purge
+  "Clears the localStorage at the bound `storage-key` (tt-repo by default)"
+  [& [confirmed]]
+  (when confirmed
+    (aset js/localStorage storage-key
+      (reset! repo empty-repo))))
+
 (defn save-scan [val]
   (write-to-local-storage :scans val))
 
@@ -42,3 +55,9 @@
 
 (defn list-scans []
   (read-from-local-storage :scans))
+
+(defn restore-from-local-storage []
+  (reset! repo
+    (or
+      (read-repo)
+      empty-repo)))

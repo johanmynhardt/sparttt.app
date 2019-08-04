@@ -3,18 +3,22 @@
     [rum.core :as rum]
     [sparttt.repository :as repository]))
 
+(def scans-cursor (rum/cursor repository/repo :scans))
+
 (rum/defc scene < rum/reactive []
-  (let [scans (repository/list-scans)]
+  (let [scans (rum/react scans-cursor)]
     [:div
      [:h2 "Overview"]
 
      [:table #_{:width "100%"}
-      [:tr
-       [:td {:col-span 2} "Number of scans: "] [:td (count scans)]]
+      [:thead
+       [:tr
+        [:td {:col-span 2} "Number of scans: "] [:td (count scans)]]
 
-      [:tr
-       [:th "Seq"] [:th "Name"] [:th "ID"]]
-      (for [{{seq :seq} :seq
-             {:keys [id name]} :athlete} scans]
-        [:tr
-         [:td seq] [:td name] [:td id]])]]))
+       [:tr
+        [:th "Seq"] [:th "Name"] [:th "ID"]]]
+      [:tbody
+       (for [{{seq :seq} :seq
+              {:keys [id name]} :athlete} scans]
+         [:tr
+          [:td seq] [:td name] [:td id]])]]]))

@@ -4,7 +4,9 @@
     [clojure.string :as str]
     [Instascan]
     [Instascan.Camera]
-    [clojure.string :as str]))
+    [clojure.string :as str]
+    [sparttt.ui-elements :as ui]
+    [sparttt.repository :as repository]))
 
 (defonce cameras (atom nil))
 (defonce selected-camera (atom nil))
@@ -59,5 +61,7 @@
      [:div.card
       [:div.title [:li.fas.fa-chart-bar] " " "Session"]
       [:div.content
+       (ui/button "Purge Data"
+         {:on-click #(repository/purge (js/confirm "All the data will be wiped! Are you sure?"))})
        [:ul
         [:li "purge data"]]]]]))
