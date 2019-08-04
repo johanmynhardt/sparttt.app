@@ -88,4 +88,4 @@
 
        :else
        [:div.card.warn
-        (str "No scene for " active-key)])]))
+        (str "No scene for " active-key " yet.")])]))
