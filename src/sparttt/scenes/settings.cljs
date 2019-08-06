@@ -16,6 +16,8 @@
   (fn [k r o n]
     (println "watch: selected camera: " n)))
 
+(defonce selected-camera-inst (atom nil))
+
 (when (or (nil? @cameras) (not (seq @cameras)))
   (->
     (Instascan.Camera/getCameras)
@@ -43,10 +45,24 @@
        [:select
         {:on-change
          (fn [e]
-           (let [v (-> e (.-target) (.-value))]
-             (reset! selected-camera
-               (if (str/blank? v) ""
-                 (str/trim v)))))
+           (let [v (-> e (.-target) (.-value))
+                 selected
+                 (reset! selected-camera
+                   (if (str/blank? v)
+                     ""
+                     (str/trim v)))]
+             (when (pos? (count selected))
+               (->
+                 (Instascan.Camera/getCameras)
+                 (.then
+                   (fn [cms]
+                     (let [cam
+                           (first (filter #(= selected (.-id %)) cms))]
+                       (println "setting in atom: " (.-name cam))
+                       (when cam
+                         (println "cam.id: " (.-id cam))
+                         (println "cam.name: " (.-name cam))
+                         (reset! selected-camera-inst cam)))))))))
 
          :value cam}
         (conj

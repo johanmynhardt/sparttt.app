@@ -4,7 +4,8 @@
     [sparttt.stage :as stage]
     [sparttt.scenes.home]
     [sparttt.scenes.settings]
-    [sparttt.scenes.scan]))
+    [sparttt.scenes.scan]
+    [sparttt.ui-elements :as ui-e]))
 
 (rum/defc stage-summary-widget < rum/reactive
   []
@@ -62,6 +63,7 @@
 
   (let []
     [:div.grid-container
+     (ui-e/video-modal)
      ;(stage-summary-widget)
      (stage-switcher-widget)
 
