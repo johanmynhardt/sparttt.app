@@ -59,8 +59,8 @@
           (do
             (browser-assist/speak "Sorry, I couldn't read a user from the input!")
             (js/setTimeout
-              #(js/alert (str "`" content "` did not match `athlete-regex`.")))
-            nil))))))
+              #(js/alert
+                 (str "`" content "` did not match `athlete-regex`.")))))))))
 
 (def sequence-regex #"^(\d+)$")
 (defn capture-sequence []
@@ -76,8 +76,9 @@
           :else
           (do
             (browser-assist/speak "Sorry, I couldn't read a sequence from the input!")
-            (js/alert
-              (str "`" content "` does not match `sequence-regex`."))))))))
+            (js/setTimeout
+              #(js/alert
+                 (str "`" content "` does not match `sequence-regex`.")))))))))
 
 (defn discard-details []
   (reset! athlete-details nil)
@@ -90,7 +91,8 @@
          :tstamp (time/now)}]
     (repository/save-scan value)
     (discard-details)
-    (reset! last-capture value)))
+    (reset! last-capture value)
+    (browser-assist/speak "Just saved" (-> value :seq :seq) "for" (-> value :athlete :name))))
 
 (def touch-icon-style
   {:style
@@ -134,4 +136,4 @@
      (when last-athlete
        [:div.card.success
         [:div.title [:li.fas.fa-check] " " "Last Stored"]
-        [:p (with-out-str (cljs.pprint/pprint last-athlete))]])]))
+        [:p [:b (-> last-athlete :seq :seq) ": "] (-> last-athlete :athlete :name)]])]))

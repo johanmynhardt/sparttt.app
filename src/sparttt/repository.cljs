@@ -4,24 +4,30 @@
 
 (def empty-repo
   {:scans []
-   :journal []})
+   :journal []
+   :camera-id nil})
 
 (defonce repo
   (atom empty-repo))
 
 (def ^:dynamic storage-key "tt-repo")
 
-(defn- write-to-local-storage [col-key val]
+(defn- append-to-local-collection [col-key val]
   (aset js/localStorage storage-key
     (swap! repo update col-key
       (fn [col] (conj col val)))))
+
+(defn- set-local-key [key value]
+  (aset js/localStorage storage-key
+    (swap! repo assoc key value)))
+
 
 (defn- read-repo []
   (-> js/localStorage
     (aget storage-key)
     cljs.reader/read-string))
 
-(defn- read-from-local-storage [col-key]
+(defn- read-from-local-collection [col-key]
   (->
     (read-repo)
     (get col-key)))
@@ -48,13 +54,19 @@
       (reset! repo empty-repo))))
 
 (defn save-scan [val]
-  (write-to-local-storage :scans val))
+  (append-to-local-collection :scans val))
 
 (defn journal-append [val]
-  (write-to-local-storage :journal val))
+  (append-to-local-collection :journal val))
+
+(defn save-camera-id [id]
+  (set-local-key :camera-id id))
+
+(defn camera-id []
+  (:camera-id @repo))
 
 (defn list-scans []
-  (read-from-local-storage :scans))
+  (read-from-local-collection :scans))
 
 (defn restore-from-local-storage []
   (reset! repo

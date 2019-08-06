@@ -30,7 +30,9 @@
             (println "----------------")
             (swap! cameras conj
               {:id (.-id cam)
-               :name (.-name cam)})))))))
+               :name (.-name cam)})
+            (when (= (.-id cam) (repository/camera-id))
+              (reset! selected-camera-inst cam))))))))
 
 (rum/defc scene < rum/reactive []
   (let [cameras (rum/react cameras)
@@ -62,9 +64,10 @@
                        (when cam
                          (println "cam.id: " (.-id cam))
                          (println "cam.name: " (.-name cam))
+                         (repository/save-camera-id (.-id cam))
                          (reset! selected-camera-inst cam)))))))))
 
-         :value cam}
+         :value (or (repository/camera-id) cam)}
         (conj
           (map
             (fn [cam]
