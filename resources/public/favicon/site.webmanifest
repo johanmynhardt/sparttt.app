@@ -8,7 +8,7 @@
             "type": "image/png"
         }
     ],
-    "start_url": "/qrv2/",
+    "start_url": "/qrv2/index.html",
     "theme_color": "#ffffff",
     "background_color": "#ffffff",
     "display": "standalone"
