@@ -43,7 +43,7 @@
   [:video#preview])
 
 (rum/defc video-modal []
-  [:div.video-modal {:hidden true}
+  [:div.video-modal.shadow {:hidden true}
    (video-preview)
    [:br]
    (button "Stop"

@@ -44,7 +44,7 @@
      [:div.card
       [:div.title [:li.fas.fa-camera] " " "Camera"]
       [:div.content
-       [:select
+       [:select.button
         {:on-change
          (fn [e]
            (let [v (-> e (.-target) (.-value))
@@ -80,14 +80,14 @@
       [:div.content
 
        [:div [:p "Export Actions"]
-        (ui/button "Export EDN"
-          {:icon :file-export
+        (ui/button "Repository"
+          {:icon :database
            :on-click
            #(browser-assist/initiate-download :edn @repository/repo
               (str "repo-data-" (time.coerce/to-local-date (time/now))))})
 
-        (ui/button "Scan CSV"
-          {:icon :file
+        (ui/button "Scans"
+          {:icon :address-card
            :on-click #()})]
 
        [:div [:p "Destructive Actions"]

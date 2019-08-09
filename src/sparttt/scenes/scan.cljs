@@ -105,7 +105,7 @@
         last-athlete (rum/react last-capture)]
 
     [:div
-     (when-not athlete
+     (when (and (not athlete) (not last-athlete))
        [:div.card.with-gradient {:on-click capture-athlete}
         [:div [:li.fas.fa-address-card touch-icon-style]
          [:li.no-list "Capture Athlete"]]])
@@ -135,5 +135,9 @@
 
      (when last-athlete
        [:div.card.success
-        [:div.title [:li.fas.fa-check] " " "Last Stored"]
-        [:p [:b (-> last-athlete :seq :seq) ": "] (-> last-athlete :athlete :name)]])]))
+        [:div.title [:li.fas.fa-check] " " "Just Captured"]
+        [:p [:b (-> last-athlete :seq :seq) ": "] (-> last-athlete :athlete :name)]
+        (ui-e/button "Next"
+          {:icon :arrow-circle-right
+           :style {:color :black}
+           :on-click #(reset! last-capture nil)})])]))

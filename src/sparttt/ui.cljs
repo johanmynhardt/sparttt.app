@@ -50,10 +50,12 @@
 
 (rum/defc footer-widget < rum/reactive
   []
-
+  ;; TODO think about a hook-strategy for controlling buttons in footer.
   (let [{{visible :visible} :footer} (stage/active-stage)]
     (when visible
-      [:div.foot.comfort "Spartan Harriers"])))
+      [:div
+       ;[:div.foot.comfort [:div.button "hi"]]
+       [:div.foot.comfort.shadow.with-gradient "Spartan Harriers"]])))
 
 (rum/defc draw-stage < rum/reactive
   []
@@ -63,10 +65,11 @@
 
   (let []
     [:div.grid-container
-     (ui-e/video-modal)
+
      ;(stage-summary-widget)
      (stage-switcher-widget)
 
      (header-widget)
      (content-widget)
+     (ui-e/video-modal)
      (footer-widget)]))

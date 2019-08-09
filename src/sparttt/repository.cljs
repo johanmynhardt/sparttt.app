@@ -51,7 +51,10 @@
   [& [confirmed]]
   (when confirmed
     (aset js/localStorage storage-key
-      (reset! repo empty-repo))))
+      (->>
+        (:camera-id @repo)
+        (assoc empty-repo :camera-id )
+        (reset! repo)))))
 
 (defn save-scan [val]
   (append-to-local-collection :scans val))

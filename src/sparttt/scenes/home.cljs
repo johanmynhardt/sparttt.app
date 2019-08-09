@@ -8,9 +8,9 @@
 (rum/defc scene < rum/reactive []
   (let [scans (rum/react scans-cursor)]
     [:div
-     [:h2 "Overview"]
+     [:h3 "Scan list"]
 
-     [:table #_{:width "100%"}
+     [:table.card
       [:thead
        [:tr
         [:td {:col-span 2} "Number of scans: "] [:td (count scans)]]
@@ -19,6 +19,6 @@
         [:th "Seq"] [:th "Name"] [:th "ID"]]]
       [:tbody
        (for [{{seq :seq} :seq
-              {:keys [id name]} :athlete} scans]
+              {:keys [id name]} :athlete} (reverse scans)]
          [:tr
           [:td seq] [:td name] [:td id]])]]]))
