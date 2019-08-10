@@ -96,9 +96,13 @@ button[disabled] {
 }
 
 .select {
-    box-shadow: 0 0 3px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 0 3px 0px rgba(2, 2, 2, 0.6);
     border: none;
-    padding: 0.3em;
+    padding: 0.4em;
+    border-radius: 2px;
+    width: 100%;
+    background-image: linear-gradient(180deg, white, #efefef, white);
+    font-size: initial;
 }
 
 .flex {
@@ -245,7 +249,7 @@ td {
     background-image: linear-gradient(180deg, white, #efefef, white);
     box-shadow: 0 0 3px 0px rgba(2, 2, 2, 0.6);
     margin-right: 0.5em;
-    margin-bottom: 0.5em;
+    /*margin-bottom: 0.5em;*/
 }
 
 div.button.warn {

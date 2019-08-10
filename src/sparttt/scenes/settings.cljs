@@ -44,7 +44,7 @@
      [:div.card
       [:div.title [:li.fas.fa-camera] " " "Camera"]
       [:div.content
-       [:select.button
+       [:select.select
         {:on-change
          (fn [e]
            (let [v (-> e (.-target) (.-value))

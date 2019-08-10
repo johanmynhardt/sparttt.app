@@ -21,7 +21,9 @@
             (new js/Instascan.Scanner.
               (clj->js
                 {:video preview
-                 :mirror false}))]
+                 :mirror false
+                 :refactoryPeriod 15000
+                 :scanPeriod 10}))]
         (set! (.-msc js/document) scnr)))
     :else
     (.-msc js/document)))

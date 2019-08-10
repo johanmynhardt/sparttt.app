@@ -57,10 +57,16 @@
 
           :else
           (do
-            (browser-assist/speak "Sorry, I couldn't read a user from the input!")
+            (browser-assist/speak "Sorry, I couldn't read an athlete from the input!")
             (js/setTimeout
               #(js/alert
                  (str "`" content "` did not match `athlete-regex`.")))))))))
+
+(defn capture-unknown-athlete []
+  (swap! athlete-details assoc
+    :name "Unknown"
+    :id "N/A"
+    :tstamp (time/now)))
 
 (def sequence-regex #"^(\d+)$")
 (defn capture-sequence []
@@ -106,37 +112,51 @@
 
     [:div
      (when (and (not athlete) (not last-athlete))
-       [:div.card.with-gradient {:on-click capture-athlete}
-        [:div [:li.fas.fa-address-card touch-icon-style]
-         [:li.no-list "Capture Athlete"]]])
+       [:div
+        [:div.card.with-gradient {:on-click capture-athlete}
+         [:div [:li.fas.fa-address-card touch-icon-style]
+          [:li.no-list "Capture Athlete"]]]
+
+        (ui-e/button "Unknown"
+          {:icon :question-circle
+           :on-click capture-unknown-athlete})])
 
      (when (and athlete (not sequence))
-       [:div.card.with-gradient {:on-click capture-sequence}
-        [:div [:li.fas.fa-hashtag touch-icon-style]
-         [:li.no-list "Capture Sequence"]]])
+       [[:div.card.with-gradient
+         [:div.title [:li.fas.fa-info] " " "Capturing"]
+         [:p [:b "Name:"] " " (:name athlete)]]
+        [:div.card.with-gradient {:on-click capture-sequence}
+         [:div [:li.fas.fa-hashtag touch-icon-style]
+          [:li.no-list "Capture Sequence"]]]
+
+        (ui-e/button "Undo"
+          {:icon :undo
+           :on-click #(reset! athlete-details nil)})])
 
      (when (and athlete sequence)
-       [:div.card
-        [:div
-         [:div [:b "Name:"]]
-         [:div [:p (:name athlete)]]
-         #_[:br]
+       [[:div.card.with-gradient
+         [:div.title [:li.fas.fa-info] " " "Capturing"]
+         [:p [:b "Name:"] " " (:name athlete)]
          [:div [:b "Sequence:"] " " (:seq sequence)]]
-        [:hr]
-        (ui-e/button "Save"
-          {:icon :save
-           :class [:primary]
-           :on-click persist-details})
-        " "
-        (ui-e/button "Discard"
-          {:icon :trash
-           :class [:warn]
-           :on-click discard-details})])
+
+        [:div.card
+         [:div.title [:li.fas.fa-database] " " "Data"]
+         [:p "Save or discard this record?"]
+         (ui-e/button "Save"
+           {:icon :save
+            :class [:primary]
+            :on-click persist-details})
+         " "
+         (ui-e/button "Discard"
+           {:icon :trash
+            :class [:warn]
+            :on-click discard-details})]])
 
      (when last-athlete
-       [:div.card.success
-        [:div.title [:li.fas.fa-check] " " "Just Captured"]
-        [:p [:b (-> last-athlete :seq :seq) ": "] (-> last-athlete :athlete :name)]
+       [[:div.card.success
+         [:div.title [:li.fas.fa-check] " " "Just Captured"]
+         [:p [:b "Name: "] " " (-> last-athlete :athlete :name)]
+         [:div [:b "Sequence:"] " " (-> last-athlete :seq :seq)]]
         (ui-e/button "Next"
           {:icon :arrow-circle-right
            :style {:color :black}
