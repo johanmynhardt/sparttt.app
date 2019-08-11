@@ -3,6 +3,7 @@
     [goog.dom :as gdom]
     [rum.core :as rum]
     [sparttt.ui :as ui]
+    [sparttt.scenes.timer :as timer]
     [sparttt.repository :as repository]))
 
 (println "This text is printed from src/sparttt/app.cljs. Go ahead and edit it and see reloading in action.")
@@ -35,3 +36,5 @@
 
 ;; needs to run on first load to hydrate repo from localStorage
 (repository/restore-from-local-storage)
+(when (= :running (:timer-state @repository/repo))
+  (timer/start-timer))

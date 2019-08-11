@@ -5,7 +5,9 @@
 (def empty-repo
   {:scans []
    :journal []
-   :camera-id nil})
+   :laps []
+   :camera-id nil
+   :genesis nil})
 
 (defonce repo
   (atom empty-repo))
@@ -59,6 +61,9 @@
 (defn save-scan [val]
   (append-to-local-collection :scans val))
 
+(defn save-lap [val]
+  (append-to-local-collection :laps val))
+
 (defn journal-append [val]
   (append-to-local-collection :journal val))
 
@@ -67,6 +72,18 @@
 
 (defn camera-id []
   (:camera-id @repo))
+
+(defn save-genesis [t]
+  (set-local-key :genesis t)
+  (save-lap
+    {:seq :genesis
+     :timestamp t}))
+
+(defn genesis []
+  (:genesis @repo))
+
+(defn save-timer-state [state]
+  (set-local-key :timer-state state))
 
 (defn list-scans []
   (read-from-local-collection :scans))

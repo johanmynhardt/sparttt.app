@@ -5,6 +5,7 @@
     [sparttt.scenes.home]
     [sparttt.scenes.settings]
     [sparttt.scenes.scan]
+    [sparttt.scenes.timer]
     [sparttt.ui-elements :as ui-e]))
 
 (rum/defc stage-summary-widget < rum/reactive
@@ -61,6 +62,7 @@
   []
   (stage/register-scene :home sparttt.scenes.home/scene)
   (stage/register-scene :settings sparttt.scenes.settings/scene)
+  (stage/register-scene :timer sparttt.scenes.timer/scene)
   (stage/register-scene :scan sparttt.scenes.scan/scene)
 
   (let []

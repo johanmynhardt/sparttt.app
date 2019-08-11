@@ -24,7 +24,7 @@
    {:header
     {:visible true
      :title "Timer"}
-    :content {:visible true}
+    :content {:visible true :class [:grid-container]}
     :footer {:visible false}
     :ui {:icon :i.fas.fa-stopwatch}}
 
@@ -77,8 +77,9 @@
 (defn scene-for
   [active-key]
 
-  (let [scene (active-key (deref scene-cursor))]
-    [:div.scene
+  (let [scene (active-key (deref scene-cursor))
+        scene-classes (get-in stage-config [active-key :content :class])]
+    [:div.scene {:class scene-classes}
      (cond
        (some? scene)
        (cond
