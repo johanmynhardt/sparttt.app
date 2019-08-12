@@ -79,30 +79,48 @@
       [:div.title [:li.fas.fa-database] " " "Data"]
       [:div.content
 
-       [:div [:p "Export Actions"]
+       [:div [:p "Export:"]
         (ui/button "Repository"
           {:icon :database
            :on-click
            #(browser-assist/initiate-download :edn @repository/repo
               (str "repo-data-" (time.coerce/to-local-date (time/now))))})
 
+        (ui/button "Laps"
+          {:icon :list
+           :on-click
+           #(browser-assist/initiate-download :csv
+              (->>
+                (deref repository/repo)
+                :laps
+                (map (juxt :seq :timestamp))
+                (map
+                  (fn [[seq timestamp]]
+                    (str/join "," [(if (= :genesis seq) 0 seq) (time.coerce/to-string timestamp)])))
+                (cons "lap,timestamp")
+                (str/join \newline))
+              (str "laps-data-" (time.coerce/to-local-date (time/now))))})
+
         (ui/button "Scans"
           {:icon :address-card
-           :on-click #()})]
+           :on-click
+           #(browser-assist/initiate-download :csv
+              (->>
+                (deref repository/repo)
+                :scans
+                (map (juxt :seq :athlete))
+                (map
+                  (fn [[{:keys [seq]} {:keys [name id tstamp]}]]
+                    (str/join "," [(if (= :genesis seq) 0 seq) name id (time.coerce/to-string tstamp)])))
+                (cons "seq,name,id,timestamp")
+                (str/join \newline))
+              (str "scan-data-" (time.coerce/to-local-date (time/now))))})]
 
-       [:div [:p "Destructive Actions"]
-
+       [:div [:p "Clean up:"]
         (ui/button "Purge Data"
           {:icon :trash
            :class [:warn]
            :on-click
            #(repository/purge
-              (js/confirm "All the data will be wiped! Are you sure?"))})]]]
+              (js/confirm "All the data will be wiped! Are you sure?"))})]]]]))
 
-     #_[:div.card
-      [:div.title [:li.fas.fa-chart-bar] " " "Session"]
-      [:div.content
-       [:ul
-        [:li "list"]
-        [:li "export csv"]
-        [:li "export journal"]]]]]))
