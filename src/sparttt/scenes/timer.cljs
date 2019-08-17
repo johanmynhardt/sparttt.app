@@ -69,17 +69,20 @@
            [:td (when duration (time-formatted duration))]])]]]
 
      [:div.foot
-      (ui-e/button (if int "Stop" "Start")
-        {:icon (if int :stop :play)
-         :on-click
-         #(if int (stop-timer) (start-timer))})
-      (ui-e/button "Lap"
-        {:icon :plus
-         :on-click
-         #(let [now (time/now)
-                lap-count (count laps)
-                duration (race-duration genesis now)]
-            (repository/save-lap
-              {:seq lap-count
-               :timestamp now
-               :duration duration}))})]]))
+      [:p]
+      [:div.row
+       (ui-e/button (if int "Stop" "Start")
+         {:icon (if int :stop :play)
+          :on-click
+          #(if int (stop-timer) (start-timer))})
+       [:div.flex]
+       (ui-e/button "Lap"
+         {:icon :plus
+          :on-click
+          #(let [now (time/now)
+                 lap-count (count laps)
+                 duration (race-duration genesis now)]
+             (repository/save-lap
+               {:seq lap-count
+                :timestamp now
+                :duration duration}))})]]]))
