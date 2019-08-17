@@ -6,6 +6,7 @@
   {:scans []
    :journal []
    :laps []
+   :laps-seq nil
    :camera-id nil
    :genesis nil})
 
@@ -62,7 +63,14 @@
   (append-to-local-collection :scans val))
 
 (defn save-lap [val]
-  (append-to-local-collection :laps val))
+  (let [_ (when-not (= :genesis (:seq val))
+            (swap! repo update-in [:laps-seq] inc))
+        counter (:laps-seq @repo)]
+    (println "counter: " counter)
+    (append-to-local-collection :laps
+      (if (= :genesis (:seq val))
+        val
+        (assoc val :seq counter)))))
 
 (defn journal-append [val]
   (append-to-local-collection :journal val))
