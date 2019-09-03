@@ -1,6 +1,8 @@
 (ns sparttt.repository
   (:require
-    [cljs.reader]))
+    [cljs.reader]
+    [clojure.data]
+    [sparttt.browser-assist :as browser-assist]))
 
 (def empty-repo
   {:scans []
@@ -12,6 +14,8 @@
 
 (defonce repo
   (atom empty-repo))
+
+(def lap-queue (atom nil))
 
 (def ^:dynamic storage-key "tt-repo")
 
@@ -42,7 +46,8 @@
          [{:journal {:on-scan {:content 1}}},
           ...])"
   [records]
-  (doseq [[col-key entry] (map first records)]
+  (js/console.info (str "writing records: " records))
+  (doseq [[col-key entry] records]
     (swap! repo update col-key
       (fn [col] (conj col entry))))
 
@@ -62,15 +67,43 @@
 (defn save-scan [val]
   (append-to-local-collection :scans val))
 
+;; to-write: {:a nil, :to-write [{:seq :genesis, :timestamp #inst "2019-08-22T23:03:33.615-00:00"}], :both nil}
+
+(comment
+
+
+
+  )
+
+(js/setInterval
+  #(do
+     (let [ls-laps (->> (read-from-local-collection :laps) set)
+           laps (->> (seq (:laps @repo)) set)
+
+           _ (js/console.info (with-out-str (cljs.pprint/pprint {:ls-laps ls-laps :laps laps})))
+
+           [a to-write both] (clojure.data/diff ls-laps laps)]
+       (js/console.info (str "to-write: " {:a a :to-write to-write :both both}))
+       (when (seq to-write)
+         (batch-write
+           (map
+             (fn [r] [:laps r])
+             to-write)))))
+  5000)
+
 (defn save-lap [val]
   (let [_ (when-not (= :genesis (:seq val))
             (swap! repo update-in [:laps-seq] inc))
-        counter (:laps-seq @repo)]
-    (println "counter: " counter)
-    (append-to-local-collection :laps
-      (if (= :genesis (:seq val))
-        val
-        (assoc val :seq counter)))))
+        counter (:laps-seq @repo)
+
+        v
+        (if (= :genesis (:seq val))
+          val
+          (assoc val :seq counter))]
+
+    (browser-assist/vibrate 200)
+    (swap! repo update :laps
+      (fn [col] (conj col v)))))
 
 (defn journal-append [val]
   (append-to-local-collection :journal val))

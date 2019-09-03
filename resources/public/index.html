@@ -37,6 +37,14 @@
             </div>
         </div>
     </div> <!-- end of app div -->
+    <script>
+        document.addEventListener('sparttt.vibrate', function(e) {
+          console.info('got vibrate request: ', e.detail);
+          if (e.detail) {
+            navigator.vibrate(e.detail);
+          }
+        });
+    </script>
     <script src="cljs-out/dev-main.js" type="text/javascript"></script>
   </body>
 </html>
