@@ -57,6 +57,7 @@
 
           :else
           (do
+            (browser-assist/vibrate 500)
             (browser-assist/speak "Sorry, I couldn't read an athlete from the input!")
             (js/setTimeout
               #(js/alert
@@ -81,6 +82,7 @@
 
           :else
           (do
+            (browser-assist/vibrate 500)
             (browser-assist/speak "Sorry, I couldn't read a sequence from the input!")
             (js/setTimeout
               #(js/alert
@@ -98,6 +100,7 @@
     (repository/save-scan value)
     (discard-details)
     (reset! last-capture value)
+    (browser-assist/vibrate 100 50 100)
     (browser-assist/speak "Just saved" (-> value :seq :seq) "for" (-> value :athlete :name))))
 
 (def touch-icon-style
