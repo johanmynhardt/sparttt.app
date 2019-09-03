@@ -1,5 +1,7 @@
 (ns sparttt.browser-assist
-  (:require [clojure.string :as str]))
+  (:require
+    [clojure.string :as str]
+    [clojure.browser.event :as browser.event]))
 
 (defn speak
   "Use the browser's assistive technology to read out text."
@@ -26,5 +28,10 @@
         _ (set! (.-href link) (.createObjectURL js/window.URL blob))
         _ (set! (.-download link) (str filename "." (:ext type-info)))]
     (.click link)))
+
+(defn vibrate [& pattern]
+  (-> js/document
+    (.dispatchEvent (new js/CustomEvent "sparttt.vibrate" (clj->js {:detail pattern}))))
+  #_(browser.event/dispatch-event js/document (new js/CustomEvent (clj->js {:detail pattern}))))
 
 ;(initiate-download "text/plain" "hello world!" "foobar.txt")

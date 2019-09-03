@@ -5,7 +5,8 @@
     [cljs-time.format :as time.format]
     [rum.core :as rum]
     [sparttt.repository :as repository]
-    [sparttt.ui-elements :as ui-e]))
+    [sparttt.ui-elements :as ui-e]
+    [sparttt.browser-assist :as browser-assist]))
 
 (defn race-duration [genesis finish-inst]
   (time.coerce/from-long
@@ -63,7 +64,7 @@
         [:tr
          [:th "Lap"] [:th "Time"]]]
        [:tbody
-        (for [{:keys [seq duration]} (reverse laps)]
+        (for [{:keys [seq duration]} (take 15 (rseq laps))]
           [:tr
            [:td [:b (str seq)]]
            [:td (when duration (time-formatted duration))]])]]]
@@ -74,15 +75,23 @@
        (ui-e/button (if int "Stop" "Start")
          {:icon (if int :stop :play)
           :on-click
-          #(if int (stop-timer) (start-timer))})
+          #(cond
+             int
+             (do
+               (stop-timer)
+               (browser-assist/vibrate 300 50 300 50 300))
+
+             :else
+             (do
+               (start-timer)
+               (browser-assist/vibrate 500 50 100)))})
        [:div.flex]
        (ui-e/button "Lap"
          {:icon :plus
           :on-click
           #(let [now (time/now)
-                 lap-count (count laps)
                  duration (race-duration genesis now)]
+             (browser-assist/vibrate 50)
              (repository/save-lap
-               {:seq lap-count
-                :timestamp now
+               {:timestamp now
                 :duration duration}))})]]]))

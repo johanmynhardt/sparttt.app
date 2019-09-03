@@ -19,6 +19,6 @@
         [:th "Seq"] [:th "Name"] [:th "ID"]]]
       [:tbody
        (for [{{seq :seq} :seq
-              {:keys [id name]} :athlete} (reverse scans)]
+              {:keys [id name]} :athlete} (rseq scans)]
          [:tr
           [:td seq] [:td name] [:td id]])]]]))
