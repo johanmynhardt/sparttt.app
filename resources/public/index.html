@@ -44,6 +44,10 @@
             navigator.vibrate(e.detail);
           }
         });
+
+        window.addEventListener('load', function(e) {
+          window.history.pushState({}, '');
+        });
     </script>
     <script src="cljs-out/dev-main.js" type="text/javascript"></script>
   </body>
