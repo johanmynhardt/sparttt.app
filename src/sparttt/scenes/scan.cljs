@@ -15,6 +15,8 @@
 
 (def athlete-details (atom nil))
 (def athlete-sequence (atom nil))
+(def sequence-override (atom nil))
+(def show-sequence-override (atom false))
 (def last-capture (atom nil))
 
 (defn with-camera [when-ready-fn]
@@ -70,27 +72,28 @@
     :tstamp (time/now)))
 
 (def sequence-regex #"^(\d+)$")
-(defn capture-sequence []
-  (capture-qr
-    (fn [content]
-      (let [[_ sequence] (re-matches sequence-regex content)]
-        (cond
-          sequence
-          (swap! athlete-sequence assoc
-            :seq content
-            :tstamp (time/now))
+(defn process-sequence [content]
+  (let [[_ sequence] (re-matches sequence-regex content)]
+    (cond
+      sequence
+      (swap! athlete-sequence assoc
+        :seq content
+        :tstamp (time/now))
 
-          :else
-          (do
-            (browser-assist/vibrate 500)
-            (browser-assist/speak "Sorry, I couldn't read a sequence from the input!")
-            (js/setTimeout
-              #(js/alert
-                 (str "`" content "` does not match `sequence-regex`.")))))))))
+      :else
+      (do
+        (browser-assist/vibrate 500)
+        (browser-assist/speak "Sorry, I couldn't read a sequence from the input!")
+        (js/setTimeout
+          #(js/alert
+             (str "`" content "` does not match `sequence-regex`.")))))))
+(defn capture-sequence []
+  (capture-qr process-sequence))
 
 (defn discard-details []
   (reset! athlete-details nil)
-  (reset! athlete-sequence nil))
+  (reset! athlete-sequence nil)
+  (reset! sequence-override nil))
 
 (defn persist-details []
   (let [value
@@ -111,7 +114,9 @@
 (rum/defc scene < rum/reactive []
   (let [athlete (rum/react athlete-details)
         sequence (rum/react athlete-sequence)
-        last-athlete (rum/react last-capture)]
+        last-athlete (rum/react last-capture)
+        sequence-o (rum/react sequence-override)
+        show-sequence-o (rum/react show-sequence-override)]
 
     [:div
      (when (and (not athlete) (not last-athlete))
@@ -128,13 +133,45 @@
        [[:div.card.with-gradient
          [:div.title [:li.fas.fa-info] " " "Capturing"]
          [:p [:b "Name:"] " " (:name athlete)]]
-        [:div.card.with-gradient {:on-click capture-sequence}
-         [:div [:li.fas.fa-hashtag touch-icon-style]
-          [:li.no-list "Capture Sequence"]]]
+        (when-not show-sequence-o
+          [:div.card.with-gradient {:on-click capture-sequence}
+           [:div [:li.fas.fa-hashtag touch-icon-style]
+            [:li.no-list "Capture Sequence"]]])
+
+        (when show-sequence-o
+          [:div.card
+           [:div.title "Override Sequence"]
+           [:p [:b "Sequence:"] " "
+            [:input
+             {:type :number :min 0 :step 1
+              :value sequence-o
+              :on-change
+              (fn [e]
+                (let [v (-> e (.-target) (.-value))]
+                  (reset! sequence-override v)))}]]
+           (ui-e/button "Next"
+             {:icon :arrow-circle-right
+              :class [(when (pos? (js/parseInt sequence-o)) :primary)]
+              :on-click #(process-sequence (or sequence-o ""))})
+           (ui-e/button "Cancel"
+             {:icon :trash
+              :class [:warn]
+              :on-click
+              #(do
+                 (reset! sequence-override nil)
+                 (reset! show-sequence-override false))})])
 
         (ui-e/button "Undo"
           {:icon :undo
-           :on-click #(reset! athlete-details nil)})])
+           :on-click
+           #(do
+              (reset! athlete-details nil)
+              (reset! show-sequence-override false))})
+
+        (when-not show-sequence-o
+          (ui-e/button "Override"
+            {:icon :keyboard
+             :on-click #(reset! show-sequence-override true)}))])
 
      (when (and athlete sequence)
        [[:div.card.with-gradient
