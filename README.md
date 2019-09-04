@@ -31,6 +31,13 @@ To create a production build run:
 	lein clean
 	lein fig:min
 
+## Configuring REPL for Cursive
+
+- Edit Configurations
+- New Local Clojure REPL
+- Run as `clojure.main`
+- Run with Leiningen
+- Parameters: `dev/user.clj`
 
 ## License
 
