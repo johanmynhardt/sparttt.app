@@ -1,0 +1,20 @@
+{
+    "name": "SpartTT",
+    "short_name": "SpartTT",
+    "icons": [
+       	{
+	    "src": "favicon/spartan-harriers-logo-300x300.png",
+	    "sizes": "300x300",
+	    "type": "image/png"
+	}
+	,{
+            "src": "favicon/spartan-harriers-logo-150x150.png",
+            "sizes": "150x150",
+            "type": "image/png"
+        }
+    ],
+    "start_url": "/qrv2/index.html",
+    "theme_color": "#ffffff",
+    "background_color": "#ffffff",
+    "display": "standalone"
+}
