@@ -114,7 +114,22 @@
                     (str/join "," [(if (= :genesis seq) 0 seq) name id (time.coerce/to-string tstamp)])))
                 (cons "seq,name,id,timestamp")
                 (str/join \newline))
-              (str "scan-data-" (time.coerce/to-local-date (time/now))))})]
+              (str "scan-data-" (time.coerce/to-local-date (time/now))))})
+
+        (ui/button "Visitors"
+          {:icon :handshake
+           :on-click
+           #(browser-assist/initiate-download :csv
+              (->>
+                (deref repository/repo)
+                :visitors
+                (map (juxt :ident :first-name :last-name))
+                (map
+                  (fn [[ident first-name last-name]]
+                    (str/join "," [ident first-name last-name])))
+                (cons "ident,first-name,last-name")
+                (str/join \newline))
+              (str "visitor-data-" (time.coerce/to-local-date (time/now))))})]
 
        [:div [:p "Clean up:"]
         (ui/button "Purge Data"
