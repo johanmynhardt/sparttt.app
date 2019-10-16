@@ -145,10 +145,7 @@
             [:input
              {:type :number :min 0 :step 1
               :value sequence-o
-              :on-change
-              (fn [e]
-                (let [v (-> e (.-target) (.-value))]
-                  (reset! sequence-override v)))}]]
+              :on-change (fn [e] (reset! sequence-override (-> e (.-target) (.-value))))}]]
            (ui-e/button "Next"
              {:icon :arrow-circle-right
               :class [(when (pos? (js/parseInt sequence-o)) :primary)]
@@ -158,7 +155,7 @@
               :class [:warn]
               :on-click
               #(do
-                 (reset! sequence-override nil)
+                 (reset! sequence-override "")
                  (reset! show-sequence-override false))})])
 
         (ui-e/button "Undo"

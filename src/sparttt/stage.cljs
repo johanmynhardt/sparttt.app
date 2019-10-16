@@ -34,7 +34,15 @@
      :title "Settings"}
     :content {:visible true}
     :footer {:visible true}
-    :ui {:icon :i.fas.fa-cog}}})
+    :ui {:icon :i.fas.fa-cog}}
+   
+   :visitors
+   {:header
+    {:visible true
+     :title "Visitors"}
+    :content {:visible true}
+    :footer {:visible true}
+    :ui {:icon :i.fas.fa-handshake}}})
 
 (def stage-cursor
   (rum/cursor-in state/app-state [:stage]))
