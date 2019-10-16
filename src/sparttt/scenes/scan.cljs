@@ -15,8 +15,11 @@
 
 (def athlete-details (atom nil))
 (def athlete-sequence (atom nil))
-(def sequence-override (atom nil))
-(def show-sequence-override (atom false))
+
+(def sequence-state
+  (atom {:override ""
+         :show-override false}))
+
 (def last-capture (atom nil))
 
 (defn with-camera [when-ready-fn]
@@ -93,7 +96,10 @@
 (defn discard-details []
   (reset! athlete-details nil)
   (reset! athlete-sequence nil)
-  (reset! sequence-override nil))
+  (reset! 
+   sequence-state
+   {:override ""
+    :show-override false}))
 
 (defn persist-details []
   (let [value
@@ -115,10 +121,11 @@
   (let [athlete (rum/react athlete-details)
         sequence (rum/react athlete-sequence)
         last-athlete (rum/react last-capture)
-        sequence-o (rum/react sequence-override)
-        show-sequence-o (rum/react show-sequence-override)]
+        sequence-override (rum/cursor sequence-state :override)
+        show-sequence-override (rum/cursor sequence-state :show-override)]
 
     [:div
+     
      (when (and (not athlete) (not last-athlete))
        [:div
         [:div.card.with-gradient {:on-click capture-athlete}
@@ -131,25 +138,27 @@
 
      (when (and athlete (not sequence))
        [[:div.card.with-gradient
+         ; debug: [:code (str  "sequence state: " (rum/react  sequence-state))]
          [:div.title [:li.fas.fa-info] " " "Capturing"]
          [:p [:b "Name:"] " " (:name athlete)]]
-        (when-not show-sequence-o
+        (when-not @show-sequence-override
           [:div.card.with-gradient {:on-click capture-sequence}
            [:div [:li.fas.fa-hashtag touch-icon-style]
             [:li.no-list "Capture Sequence"]]])
 
-        (when show-sequence-o
+        (when (rum/react show-sequence-override)
           [:div.card
            [:div.title "Override Sequence"]
            [:p [:b "Sequence:"] " "
             [:input
              {:type :number :min 0 :step 1
-              :value sequence-o
+              :value @sequence-override
               :on-change (fn [e] (reset! sequence-override (-> e (.-target) (.-value))))}]]
            (ui-e/button "Next"
              {:icon :arrow-circle-right
-              :class [(when (pos? (js/parseInt sequence-o)) :primary)]
-              :on-click #(process-sequence (or sequence-o ""))})
+              :class [(when (pos? (js/parseInt (rum/react sequence-override))) :primary)]
+              :on-click #(process-sequence (or (rum/react sequence-override) ""))})
+           ;debug: [:code (str "sequence: " (rum/react sequence-override))]
            (ui-e/button "Cancel"
              {:icon :trash
               :class [:warn]
@@ -165,10 +174,10 @@
               (reset! athlete-details nil)
               (reset! show-sequence-override false))})
 
-        (when-not show-sequence-o
+        (when-not @show-sequence-override
           (ui-e/button "Override"
             {:icon :keyboard
-             :on-click #(reset! show-sequence-override true)}))])
+             :on-click #(do (println "clickc override") (reset! show-sequence-override true))}))])
 
      (when (and athlete sequence)
        [[:div.card.with-gradient

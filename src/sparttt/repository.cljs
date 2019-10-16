@@ -6,6 +6,7 @@
   {:scans []
    :journal []
    :laps []
+   :visitors []
    :laps-seq nil
    :camera-id nil
    :genesis nil})
@@ -101,3 +102,9 @@
     (or
       (read-repo)
       empty-repo)))
+
+(defn save-visitor [visitor]
+  (append-to-local-collection :visitors visitor))
+
+(defn list-visitors []
+  (read-from-local-collection :visitors))

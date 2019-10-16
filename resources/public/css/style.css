@@ -270,3 +270,25 @@ div.button.primary {
     background-color: darkseagreen;
     background-image: none;
 }
+
+div.field {
+    margin: 0.5em;
+    
+    border: 1px #ddd solid;
+    display:inline-block;
+}
+
+div.field > label {
+    color: white;
+    background: #000;
+    width: 6em;
+    border: 0px solid red;
+    display: inline-block;
+    padding: 0.2em;
+}
+
+div.field > input {
+    border: 0px solid green;
+    display: inline-block;
+    padding: 0.2em;
+}

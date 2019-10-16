@@ -1,18 +1,18 @@
 (ns sparttt.scenes.visitors
   (:require
    [rum.core :as rum]
-   [sparttt.ui-elements :as ui-e]))
+   [sparttt.ui-elements :as ui-e]
+   [sparttt.repository :as repository]))
 
-(defonce visitors
-  (atom [{:ident "V001" 
-          :first-name "Pietie"
-          :last-name "vd Walt"}]))
+(def visitors-cursor
+  (rum/cursor repository/repo :visitors))
 
-(def new-user
-  (atom 
-   {:first-name ""
-    :last-name ""
-    :ident ""}))
+(def empty-user
+  {:first-name ""
+   :last-name ""
+   :ident ""})
+
+(def new-user (atom empty-user))
 
 (rum/defc scene < rum/reactive []
   (let [nuser (rum/react new-user)
@@ -24,53 +24,50 @@
      [:div.card
       [:div.title [:li.fas.fa-handshake] " " "Add Visitor"]
       [:div.content
+       [:p "Fill out the visitor id, first name and last name and press \"Add\""]
        [:div.field
-        [:div "Visitor ID"]
+        [:label "Visitor ID"]
         [:input 
          {:type "text"
           :value @ident
           :auto-focus false
-          :on-change (fn [e] (reset! ident (-> e (.-target) (.-value))))}]]
+          :on-change (fn [e] (reset! ident (-> e (.-target) (.-value))))
+          :placeholder "V001"}]]
        [:div.field
-        [:div "First Name"]
+        [:label "First Name"]
         [:input
          {:type "text"
           :value @first-name
           :auto-focus false
-          :on-change (fn [e] (reset! first-name (-> e (.-target) (.-value))))}]]
+          :on-change (fn [e] (reset! first-name (-> e (.-target) (.-value))))
+          :placeholder "John"}]]
        [:div.field
-        [:div "Last Name"]
+        [:label "Last Name"]
         [:input
          {:type "text"
           :value @last-name
           :auto-focus false
-          :on-change (fn [e] (reset! last-name (-> e (.-target) (.-value))))}]]
+          :on-change (fn [e] (reset! last-name (-> e (.-target) (.-value))))
+          :placeholder "Doe"}]]
 
-       (ui-e/button
-        "Add"
-        {:on-click
-         #(do
-            (swap! visitors conj nuser)
-            (reset!
-             new-user
-             {:ident ""
-              :first-name ""
-              :last-name ""}))})]]
+       
+       [:div.actions
+        (ui-e/button
+         "Add"
+         {:class [:primary]
+          :on-click
+          #(do
+             (repository/save-visitor nuser)
+             (reset! new-user empty-user))})]]]
 
      [:div
       [:h3 "Visitors"]
       
       [:table
-       [:tr
-        [:th "VID"]
-        [:th "Name"]
-        [:th "Surname"]]
+       [:tr [:th "VID"] [:th "Name"] [:th "Surname"]]
+       
        (->>
-        (rum/react visitors)
+        (rum/react visitors-cursor)
         (map
          (fn [{:keys [ident first-name last-name]}]
-           [:tr
-            [:td ident]
-            [:td first-name]
-            [:td last-name]])))]
-       ]]))
+           [:tr [:td ident] [:td first-name] [:td last-name]])))]]]))
