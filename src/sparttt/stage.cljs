@@ -42,7 +42,15 @@
      :title "Visitors"}
     :content {:visible true}
     :footer {:visible true}
-    :ui {:icon :i.fas.fa-handshake}}})
+    :ui {:icon :i.fas.fa-handshake}}
+   
+   :consolidate
+   {:header 
+    {:visible true 
+     :title "Consolidate Data"}
+    :content {:visible true}
+    :footer {:visible false}
+    :ui {:icon :i.fas.fa-sort-amount-down}}})
 
 (def stage-cursor
   (rum/cursor-in state/app-state [:stage]))
