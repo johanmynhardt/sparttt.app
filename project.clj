@@ -5,7 +5,7 @@
   {:name "Eclipse Public License"
    :url "http://www.eclipse.org/legal/epl-v10.html"}
 
-  :min-lein-version "2.7.1"
+  :min-lein-version "2.8.3"
 
   :dependencies
   [[org.clojure/clojure "1.9.0"]
@@ -13,9 +13,14 @@
    [com.andrewmcveigh/cljs-time "0.5.2"]
    [rum "0.11.2"]
 
+   [nrepl "0.6.0"]
+
    ; figwheel deps
    [com.bhauman/figwheel-main "0.1.9"]
-   [com.bhauman/rebel-readline-cljs "0.1.4"]]
+   [com.bhauman/rebel-readline-cljs "0.1.4"]
+  
+   [figwheel-sidecar "0.5.16"]
+   [cider/piggieback "0.4.1"]]
 
   :source-paths ["src"]
 
@@ -32,5 +37,9 @@
    {:dependencies
     [[com.bhauman/figwheel-main "0.1.9"]
      [com.bhauman/rebel-readline-cljs "0.1.4"]
-     [figwheel-sidecar "0.5.16"]]}})
+     [figwheel-sidecar "0.5.16"]
+     [cider/piggieback "0.4.1"]
+     [org.clojure/tools.nrepl "0.2.13"]]
+
+    :repl-options {:nrepl-middleware [cider.piggieback/wrap-cljs-repl]}}})
 
