@@ -149,23 +149,25 @@
         (when (rum/react show-sequence-override)
           [:div.card
            [:div.title "Override Sequence"]
-           [:p [:b "Sequence:"] " "
-            [:input
-             {:type :number :min 0 :step 1
-              :value @sequence-override
-              :on-change (fn [e] (reset! sequence-override (-> e (.-target) (.-value))))}]]
-           (ui-e/button "Next"
-             {:icon :arrow-circle-right
-              :class [(when (pos? (js/parseInt (rum/react sequence-override))) :primary)]
-              :on-click #(process-sequence (or (rum/react sequence-override) ""))})
-           ;debug: [:code (str "sequence: " (rum/react sequence-override))]
-           (ui-e/button "Cancel"
-             {:icon :trash
-              :class [:warn]
-              :on-click
-              #(do
-                 (reset! sequence-override "")
-                 (reset! show-sequence-override false))})])
+           (ui-e/input
+            sequence-override "Sequence"
+            {:placeholder "Number"
+             :type :number
+             :min 0
+             :step 1})
+           [:div.actions
+            (ui-e/button "Next"
+                         {:icon :arrow-circle-right
+                          :class [(when (pos? (js/parseInt (rum/react sequence-override))) :primary)]
+                          :on-click #(process-sequence (or @sequence-override ""))})
+                                        ;debug: [:code (str "sequence: " (rum/react sequence-override))]
+            (ui-e/button "Cancel"
+                         {:icon :trash
+                          :class [:warn]
+                          :on-click
+                          #(do
+                             (reset! sequence-override "")
+                             (reset! show-sequence-override false))})]])
 
         (ui-e/button "Undo"
           {:icon :undo
