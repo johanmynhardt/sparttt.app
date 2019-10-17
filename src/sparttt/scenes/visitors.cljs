@@ -88,10 +88,11 @@
       [:h3 "Visitors"]
       
       [:table
-       [:tr [:th "VID"] [:th "Name"] [:th "Surname"]]
-       
-       (->>
-        (rum/react visitors-cursor)
-        (map
-         (fn [{:keys [ident first-name last-name]}]
-           [:tr [:td ident] [:td first-name] [:td last-name]])))]]]))
+       [:thead
+        [:tr [:th "VID"] [:th "Name"] [:th "Surname"]]]
+       [:tbody
+        (->>
+         (rum/react visitors-cursor)
+         (map
+          (fn [{:keys [ident first-name last-name]}]
+            [:tr [:td ident] [:td first-name] [:td last-name]])))]]]]))
