@@ -56,5 +56,14 @@
          (hide-video-modal)
          (.stop scanner))})])
 
-
+(rum/defc input [cursor label & [{:keys [type placeholder] :as options}]]
+  [[:div.field
+    [:label (or label "(no label)")]
+    [:input
+     (merge
+      options
+      {:type (or type "text")
+       :value @cursor
+       :placeholder placeholder
+       :on-change (fn [e] (reset! cursor (-> e (.-target) (.-value))))})]]])
 
