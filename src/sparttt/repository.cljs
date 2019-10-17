@@ -9,7 +9,11 @@
    :visitors []
    :laps-seq nil
    :camera-id nil
-   :genesis nil})
+   :genesis nil
+   :consolidate
+   {:scans {:source [] :results {}}
+    :laps {:source [] :results {}}
+    :visitors {:source [] :results {}}}})
 
 (defonce repo
   (atom empty-repo))
