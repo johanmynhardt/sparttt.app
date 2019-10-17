@@ -290,4 +290,5 @@ div.field > input {
     border: 0px solid green;
     display: inline-block;
     padding: 0.2em;
+    width: 12em;
 }
