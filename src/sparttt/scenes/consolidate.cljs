@@ -6,12 +6,14 @@
    [cljs-time.format :as time.format]
    [clojure.string :as str]
    [sparttt.repository :as repository]
-   [sparttt.ui-elements :as ui-e]))
+   [sparttt.ui-elements :as ui-e]
+   [sparttt.browser-assist :as browser-assist]))
 
 (def storage-cursor (rum/cursor repository/repo :consolidate))
 (def scans-cursor (rum/cursor-in repository/repo [:consolidate :scans]))
 (def laps-cursor (rum/cursor-in repository/repo [:consolidate :laps]))
 (def visitors-cursor (rum/cursor-in repository/repo [:consolidate :visitors]))
+(def results-cursor (rum/cursor-in repository/repo [:consolidate :results]))
 
 ;;;; Time processing utilities =========================
 
@@ -50,42 +52,146 @@
             ;(println next)
             (cond
               (re-matches #"\d+" seq) (assoc acc (js/parseInt seq) timestamp)
-              :else (assoc acc seq timestamp)))
-          {}))
+              :else acc))
+          (sorted-map)))
 
         genesis (time.format/parse (get raw-map 0))]
-    (reduce
-     (fn [acc [idx timestamp]]
-       (cond
-         (number? idx)
-         (assoc acc idx
-                (let [duration (duration genesis (time.format/parse (get raw-map idx)))]
-                  {:duration duration
-                   :duration-string (time-formatted duration)}))
-         :else
-         (assoc acc idx
-                {:meta timestamp}))) 
-     {:genesis 
-      {:duration (duration genesis genesis)
-       :duration-string (time-formatted (duration genesis genesis))}}
-     raw-map)))
+    (->> 
+     raw-map
+     (reduce
+      (fn [acc [idx timestamp]]
+        (cond
+          (number? idx)
+          (assoc acc idx
+                 (let [duration (duration genesis (time.format/parse (get raw-map idx)))]
+                   {:duration duration
+                    :duration-string (time-formatted duration)}))
+          :else
+          acc))
+      (sorted-map)))))
+
+(defn process-scans
+  [scan-data]
+  (let [raw-map
+        (->>
+         scan-data
+         (map
+          (fn [data]
+            (->> 
+             data
+             (map
+              (fn [[seq name id timestamp :as scan]]
+                [(if (re-matches #"\d+" seq) (js/parseInt seq) seq)
+                 {:id id
+                  :seq (if (re-matches #"\d+" seq) (js/parseInt seq) seq)
+                  :name name
+                  :timestamp timestamp}]))
+             (into {}))))
+         (reduce merge))]
+    raw-map))
+
+(defn process-visitors
+  [visitor-data]
+  (let [raw-map
+        (->>
+         visitor-data
+         (map
+          (fn [data]
+            (->>
+             data
+             (map
+              (fn [[ident first-name last-name]]
+                [ident (str first-name " " last-name)]))
+             (into {}))))
+         (reduce merge))]
+    raw-map))
+
+(defn zero-pad [n]
+  (cond
+    (< n 10)
+    (str "00" n)
+
+    (< n 100)
+    (str "0" n)
+
+    :else
+    (str n)))
+
+(defn collate-data
+  [lap-data scan-data visitor-data]
+  (->>
+   lap-data
+   (reduce
+    (fn [acc [idx lap :as next]]
+      (let [found-scan (get scan-data idx)]
+        (assoc acc idx
+               (merge 
+                lap
+                (select-keys found-scan [:id :name :seq]))))) 
+    {})
+   (map
+    (fn [[idx {:keys [id] :as data} :as entry]]
+      (let [visitor-name (get visitor-data id)]
+        [idx (assoc data
+                    :name
+                    (or
+                     visitor-name
+                     (:name data)
+                     "[ -- No Scan -- ]")
+                    
+                    :seqs
+                    (cond
+                      (nil? (:seq data))
+                      (zero-pad idx)
+                      
+                      :else
+                      (zero-pad (:seq data))))])))
+   (map (fn [[_ v]] v))
+   (sort-by :seqs)))
+
+(defn extract-data [results]
+  (->>
+   results 
+   (cons {:seqs "Position" :duration-string "Time" :name "Name"})
+   (map (juxt :seqs :duration-string :name))))
+
+
+(defn render-data-text [results]
+  (->>
+    (extract-data results)
+    (map (partial str/join " __ "))
+    (str/join \newline)))
+
+(defn render-data-csv [results]
+  (->>
+    (extract-data results)
+    (map (partial str/join ","))
+    (str/join \newline)))
+
+(def data-renderers
+  {:txt #'render-data-text
+   :csv #'render-data-csv})
+
+(defn export-results [results & types]
+  (doseq [t types]
+    (browser-assist/initiate-download
+     t ((get data-renderers t) results)
+     (str "results-" (time.coerce/to-local-date (time/now))))))
 
 (comment
-  (->>
-   @repository/repo
-   :consolidate
-   :laps
-   :source
-   :data)
-
-  (->>
-   (extract-source-data :laps)
-   #_(map (fn [data] (into (sorted-map) data)))
-   #_(reduce merge))
-
-  (time.format/parse "2019-10-15T07:33:58.626Z")
-
-  (println  (process-laps (extract-source-data :laps)))
+  (export-results
+   (collate-data 
+    (process-laps (extract-source-data :laps))
+    (process-scans (extract-source-data :scans))
+    (process-visitors (extract-source-data :visitors)))
+   :txt)
+  
+  (println  (process-scans (extract-source-data :scans)))
+  
+  (println "collated:" (with-out-str (cljs.pprint/pprint (collate-data 
+    (process-laps (extract-source-data :laps))
+    (process-scans (extract-source-data :scans))
+    (process-visitors (extract-source-data :visitors))))))
 )
 
 
@@ -166,5 +272,53 @@
        [:li (:name v) " (" (dec (count (:data v))) " rows)"])]]
 
    [:div.actions
-    (ui-e/button "Process" {:icon :sync})]])
+    (ui-e/button
+     "Process"
+     {:icon :sync
+      :on-click
+      #(let [results
+             (collate-data 
+              (process-laps (extract-source-data :laps))
+              (process-scans (extract-source-data :scans))
+              (process-visitors (extract-source-data :visitors)))]
+         (reset! results-cursor results))})]
+
+   (when (rum/react results-cursor)
+     [:div
+      [:h3 "Results"]
+
+      [:div.actions
+       (ui-e/button
+        "CSV"
+        {:icon :file-csv
+         :on-click
+         #(export-results
+           (collate-data 
+            (process-laps (extract-source-data :laps))
+            (process-scans (extract-source-data :scans))
+            (process-visitors (extract-source-data :visitors)))
+           :csv)})
+
+       (ui-e/button
+        "Text"
+        {:icon :file-alt
+         :on-click
+         #(export-results
+           (collate-data 
+            (process-laps (extract-source-data :laps))
+            (process-scans (extract-source-data :scans))
+            (process-visitors (extract-source-data :visitors)))
+           :txt)})]
+
+      [:table
+       [:thead
+        [:tr
+         [:th "Position"] [:th "Time"] [:th "Name"]]]
+
+       [:tbody
+        (for [{:keys [seqs duration-string name]} @results-cursor]
+          [:tr
+           [:td (or seqs "--")]
+           [:td (or duration-string "--")]
+           [:td (or name "--")]])]]])])
 
