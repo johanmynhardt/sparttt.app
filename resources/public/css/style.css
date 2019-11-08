@@ -252,17 +252,22 @@ td {
     margin-bottom: 0.5em;
 }
 
-div.button.warn {
+.button.warn {
     color: black;
     background-color: lightpink;
     background-image: none;
 }
 
-div.button.primary {
+.button.primary {
     color: white;
     background-color: dodgerblue;
     background-image: none;
     border: 1px dodgerblue solid;
+}
+
+.button.primary:focus {
+    box-shadow: 0px 0 5px 2px #000000b5;
+    outline: none;
 }
 
 .success {

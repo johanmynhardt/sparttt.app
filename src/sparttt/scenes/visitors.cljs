@@ -56,10 +56,9 @@
        [:p "Fill out the visitor id, first name and last name and press \"Add\""]
        
        [:div.actions
-        (ui-e/input ident "Visitor ID" {:placeholder "V001"})
+        (ui-e/input ident "Visitor ID" {:id "inputVid" :placeholder "V001"})
         (ui-e/input first-name "First Name" {:placeholder "John"})
         (ui-e/input last-name "Last Name" {:placeholder "Doe"})]
-       
        
        [:div.actions
         (ui-e/button
@@ -73,7 +72,11 @@
                (and got-all-details? (not existing-visitor-with-id))
                (do
                  (repository/save-visitor (assoc nuser :ident corrected-ident))
-                 (reset! new-user empty-user))
+                 (reset! new-user empty-user)
+                 (->
+                  js/document
+                  (.querySelector "#inputVid")
+                  (.focus)))
                
                (not got-all-details?)
                (js/alert "Not all the fields are completed.")
@@ -93,6 +96,7 @@
        [:tbody
         (->>
          (rum/react visitors-cursor)
+         reverse
          (map
           (fn [{:keys [ident first-name last-name]}]
             [:tr [:td ident] [:td first-name] [:td last-name]])))]]]]))
