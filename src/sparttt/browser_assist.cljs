@@ -18,7 +18,8 @@
 (def mime-types
   {:edn {:mime "application/edn" :ext "edn"}
    :csv {:mime "text/csv" :ext "csv"}
-   :json {:mime "application/json" :ext "json"}})
+   :json {:mime "application/json" :ext "json"}
+   :txt {:mime "text/plain" :ext "txt"}})
 
 (defn initiate-download [type data filename]
   (let [type-info (get mime-types type)
