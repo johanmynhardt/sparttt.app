@@ -22,9 +22,9 @@ const PRECACHE_URLS = [
   '/qrv2/',
   '/qrv2/index.html',
   '/qrv2/css/style.css',
-  '/qrv2/css/fontawesome/5.3.1/css/all.css',
+  '/qrv2/css/fontawesome/5.11.2/css/all.css',
   '/qrv2/cljs-out/dev-main.js',
-  '/qrv2/css/fontawesome/5.3.1/webfonts/fa-solid-900.woff2',
+  '/qrv2/css/fontawesome/5.11.2/webfonts/fa-solid-900.woff2',
   '/qrv2/favicon/spartan-harriers-logo-150x150.png'
 ];
 
