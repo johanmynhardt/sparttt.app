@@ -8,8 +8,9 @@
     [rum.core :as rum]
     [sparttt.ui-elements :as ui]
     [sparttt.browser-assist :as browser-assist]
-    [sparttt.repository :as repository]))
-
+    [sparttt.repository :as repository]
+    [sparttt.stage :as stage]))
+ 
 (defonce cameras (atom nil))
 (defonce selected-camera (atom nil))
 (add-watch selected-camera :selected-camera
@@ -139,3 +140,11 @@
            #(repository/purge
               (js/confirm "All the data will be wiped! Are you sure?"))})]]]]))
 
+(stage/register-scene
+ (stage/configure-scene
+  :settings
+  {:layout
+   {:header {:title "Settings"}
+    :graphics {:icon :cog}}}
+
+  {:scene #'scene}))

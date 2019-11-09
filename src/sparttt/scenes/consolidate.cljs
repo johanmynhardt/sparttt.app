@@ -7,6 +7,7 @@
    [clojure.string :as str]
    [sparttt.repository :as repository]
    [sparttt.ui-elements :as ui-e]
+   [sparttt.stage :as stage]
    [sparttt.browser-assist :as browser-assist]))
 
 (def storage-cursor (rum/cursor repository/repo :consolidate))
@@ -322,3 +323,13 @@
            [:td (or duration-string "--")]
            [:td (or name "--")]])]]])])
 
+
+(stage/register-scene
+ (stage/configure-scene
+  :consolidate
+  {:layout
+   {:header {:title "Consolidate Data"}
+    :footer {:visibility :hide}
+    :graphics {:icon :sort-amount-down}}
+   
+   :scene #'scene}))

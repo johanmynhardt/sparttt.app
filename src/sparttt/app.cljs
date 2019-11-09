@@ -2,7 +2,12 @@
   (:require
     [goog.dom :as gdom]
     [rum.core :as rum]
-    [sparttt.ui :as ui]
+    [sparttt.stage-conductor :as stage-conductor]
+    [sparttt.scenes.scan]
+    [sparttt.scenes.home]
+    [sparttt.scenes.settings]
+    [sparttt.scenes.visitors]
+    [sparttt.scenes.consolidate]
     [sparttt.scenes.timer :as timer]
     [sparttt.repository :as repository]))
 
@@ -12,7 +17,7 @@
   (gdom/getElement "app"))
 
 (rum/defc sparttt-app < rum/reactive []
-  (ui/draw-stage))
+  (stage-conductor/draw-stage))
 
 (defn mount [el]
   (rum/mount (sparttt-app) el))

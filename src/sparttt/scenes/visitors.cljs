@@ -4,7 +4,8 @@
    [rum.core :as rum]
    [sparttt.browser-assist :as browser-assist]
    [sparttt.ui-elements :as ui-e]
-   [sparttt.repository :as repository]))
+   [sparttt.repository :as repository]
+   [sparttt.stage :as stage]))
 
 (def visitors-cursor
   (rum/cursor repository/repo :visitors))
@@ -100,3 +101,12 @@
          (map
           (fn [{:keys [ident first-name last-name]}]
             [:tr [:td ident] [:td first-name] [:td last-name]])))]]]]))
+
+(stage/register-scene
+ (stage/configure-scene
+  :visitors
+  {:layout
+   {:header {:title "Visitors"}
+    :graphics {:icon :handshake}}}
+  
+  {:scene #'scene}))

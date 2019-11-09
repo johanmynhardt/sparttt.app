@@ -1,6 +1,7 @@
 (ns sparttt.scenes.home
   (:require
     [rum.core :as rum]
+    [sparttt.stage :as stage]
     [sparttt.repository :as repository]))
 
 (def scans-cursor (rum/cursor repository/repo :scans))
@@ -22,3 +23,12 @@
               {:keys [id name]} :athlete} (rseq scans)]
          [:tr
           [:td seq] [:td name] [:td id]])]]]))
+
+(stage/register-scene
+ (stage/configure-scene
+  :home
+  {:layout
+   {:header {:title "Home"}
+    :graphics {:icon :home}}}
+
+  {:scene #'scene}))
