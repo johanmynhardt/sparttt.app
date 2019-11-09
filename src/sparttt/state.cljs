@@ -2,10 +2,7 @@
 
 (defonce app-state
   (atom
-    {:text "Hello world!"
-
-     :stage
-     {:current :home}
+    {:current-scene :home
 
      :scenes
      {:home nil}}))

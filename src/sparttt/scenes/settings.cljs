@@ -145,6 +145,6 @@
   :settings
   {:layout
    {:header {:title "Settings"}
-    :graphics {:icon :cog}}}
-
-  {:scene #'scene}))
+    :graphics {:icon :cog}}
+   
+   :scene #'scene}))

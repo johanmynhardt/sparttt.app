@@ -29,7 +29,7 @@
     (str "i.fas.fa-" (name (or fa-id :exclamation))))})
 
 (def stage-cursor
-  (rum/cursor-in state/app-state [:stage]))
+  (rum/cursor-in state/app-state [:current-scene]))
 
 (def scene-cursor
   (rum/cursor-in state/app-state [:scenes]))

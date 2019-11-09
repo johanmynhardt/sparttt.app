@@ -217,6 +217,6 @@
   {:layout
    {:header {:title "Capture QR"}
     :footer {:visibility :hide}
-    :graphics {:icon :address-card}}}
-
-  {:scene #'scene}))
+    :graphics {:icon :address-card}}
+    
+   :scene #'scene}))

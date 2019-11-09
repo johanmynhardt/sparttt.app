@@ -104,6 +104,6 @@
    {:header {:title "Timer"}
     :content {:class [:grid-container]}
     :footer {:visibility :hide}
-    :graphics {:icon :stopwatch}}}
-
-  {:scene #'scene}))
+    :graphics {:icon :stopwatch}}
+    
+   :scene #'scene}))

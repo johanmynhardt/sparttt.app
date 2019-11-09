@@ -29,6 +29,6 @@
   :home
   {:layout
    {:header {:title "Home"}
-    :graphics {:icon :home}}}
-
-  {:scene #'scene}))
+    :graphics {:icon :home}}
+    
+   :scene #'scene}))

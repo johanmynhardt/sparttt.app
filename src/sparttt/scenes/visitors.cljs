@@ -107,6 +107,6 @@
   :visitors
   {:layout
    {:header {:title "Visitors"}
-    :graphics {:icon :handshake}}}
-  
-  {:scene #'scene}))
+    :graphics {:icon :handshake}}
+   
+   :scene #'scene}))
