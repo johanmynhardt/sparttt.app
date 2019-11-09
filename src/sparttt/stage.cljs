@@ -1,56 +1,32 @@
 (ns sparttt.stage
   (:require
     [rum.core :as rum]
+    [clojure.string :as str]
     [sparttt.state :as state]))
 
-(def stage-config
-  {:home
-   {:header
-    {:visible true
-     :title "Home"}
-    :content {:visible true}
-    :footer {:visible true}
-    :ui {:icon :i.fas.fa-home}}
+(defn deep-merge [a & maps]
+  (if (map? a)
+    (apply merge-with deep-merge a maps)
+    (apply merge-with deep-merge maps)))
 
-   :scan
-   {:header
-    {:visible true
-     :title "Capture QR"}
-    :content {:visible true}
-    :footer {:visible false :rows 2}
-    :ui {:icon :i.fas.fa-address-card}}
+(defn configure-scene [scene-key & scene-component-maps]
+  {scene-key
+   (reduce
+    deep-merge
+    (cons
+     {:layout
+      {:header {:visibility :show}
+       :content {:visibility :show :class []}
+       :footer {:visibility :show}
+       :graphics {:icon :fa-question}}
+      
+      :scene :undefined}
+     scene-component-maps))})
 
-   :timer
-   {:header
-    {:visible true
-     :title "Timer"}
-    :content {:visible true :class [:grid-container]}
-    :footer {:visible false}
-    :ui {:icon :i.fas.fa-stopwatch}}
-
-   :settings
-   {:header
-    {:visible true
-     :title "Settings"}
-    :content {:visible true}
-    :footer {:visible true}
-    :ui {:icon :i.fas.fa-cog}}
-   
-   :visitors
-   {:header
-    {:visible true
-     :title "Visitors"}
-    :content {:visible true}
-    :footer {:visible true}
-    :ui {:icon :i.fas.fa-handshake}}
-   
-   :consolidate
-   {:header 
-    {:visible true 
-     :title "Consolidate Data"}
-    :content {:visible true}
-    :footer {:visible false}
-    :ui {:icon :i.fas.fa-sort-amount-down}}})
+(defn icon [fa-id]
+  {:icon
+   (keyword
+    (str "i.fas.fa-" (name (or fa-id :exclamation))))})
 
 (def stage-cursor
   (rum/cursor-in state/app-state [:stage]))
@@ -60,42 +36,47 @@
 
 (defn active-stage-key
   []
-  (:current (rum/react stage-cursor)))
+  (:current
+   #_@stage-cursor
+ (rum/react stage-cursor)))
 
 (defn active-stage
   []
-  (get stage-config (active-stage-key)))
+  (get @scene-cursor (active-stage-key)))
 
 (defn activate-stage
   [stage-key]
-
-  (let [result
-        {:stage-config
-         {:keys (keys stage-config)
-          :current (:current (deref stage-cursor))}}]
-
-    (cond
-      (get stage-config stage-key)
-      (do
-        ;(println "activate-stage request applied: " (assoc result :new-key stage-key))
-        (swap! stage-cursor assoc :current stage-key))
-
-      :else
-      (let [message (str "activate-stage request failed. (no key for " stage-key ")")]
-        (println message)
-        (js/alert message)))))
+  ;(println "request to activate stage: " stage-key)
+  (cond
+    (get @scene-cursor stage-key)
+    (swap! stage-cursor assoc
+           :current stage-key)
+    
+    :else
+    (let [message (str "activate-stage request failed. (no key for " stage-key ")")]
+      (println message)
+      (js/alert message))))
 
 (defn register-scene
-  [key scene-data]
-  (swap! scene-cursor assoc
-    key scene-data))
+  "Registers scene to stage/scene-cursor.
+
+  Until figured out, it's compulsory to require the
+  namespace in sparttt.app so the scenes' registrations
+  get triggered."
+
+  [scene-config]
+  (println "Registering scene: " (keys scene-config))
+  (swap! scene-cursor merge scene-config))
 
 (defn scene-for
   [active-key]
+  ;(println "handling scene for active-key " active-key)
+  (let [{:keys [layout scene]}
+        (active-key (deref scene-cursor))]
 
-  (let [scene (active-key (deref scene-cursor))
-        scene-classes (get-in stage-config [active-key :content :class])]
-    [:div.scene {:class scene-classes}
+    [:div.scene
+     {:class (get-in layout [:content :class])}
+     
      (cond
        (some? scene)
        (cond

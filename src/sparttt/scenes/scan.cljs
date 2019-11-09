@@ -9,6 +9,7 @@
     [rum.core :as rum]
     [sparttt.repository :as repository]
     [sparttt.scenes.settings :as settings]
+    [sparttt.stage :as stage]
     [sparttt.browser-assist :as browser-assist]
     [sparttt.ui-elements :as ui-e]
     [clojure.string :as str]))
@@ -209,3 +210,13 @@
           {:icon :arrow-circle-right
            :style {:color :black}
            :on-click #(reset! last-capture nil)})])]))
+
+(stage/register-scene
+ (stage/configure-scene
+  :scan
+  {:layout
+   {:header {:title "Capture QR"}
+    :footer {:visibility :hide}
+    :graphics {:icon :address-card}}}
+
+  {:scene #'scene}))

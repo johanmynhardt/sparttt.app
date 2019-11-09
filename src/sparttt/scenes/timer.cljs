@@ -4,6 +4,7 @@
     [cljs-time.core :as time]
     [cljs-time.format :as time.format]
     [rum.core :as rum]
+    [sparttt.stage :as stage]
     [sparttt.repository :as repository]
     [sparttt.ui-elements :as ui-e]
     [sparttt.browser-assist :as browser-assist]))
@@ -95,3 +96,14 @@
              (repository/save-lap
                {:timestamp now
                 :duration duration}))})]]]))
+
+(stage/register-scene
+ (stage/configure-scene
+  :timer
+  {:layout
+   {:header {:title "Timer"}
+    :content {:class [:grid-container]}
+    :footer {:visibility :hide}
+    :graphics {:icon :stopwatch}}}
+
+  {:scene #'scene}))
