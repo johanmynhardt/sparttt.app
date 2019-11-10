@@ -68,7 +68,7 @@
                          (repository/save-camera-id (.-id cam))
                          (reset! selected-camera-inst cam)))))))))
 
-         :value (or (repository/camera-id) cam)}
+         :value (or (repository/camera-id) cam "")}
         (conj
           (map
             (fn [cam]

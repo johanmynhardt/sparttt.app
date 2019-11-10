@@ -32,13 +32,15 @@
     (js/setInterval
       #(swap! ticker assoc :instant (time/now))
       110))
-  (repository/save-timer-state :running))
+  (repository/save-timer-state :running)
+  (swap! sparttt.stage/scene-cursor assoc-in [:timer :layout :navbar :visibility] :hide))
 
 (defn stop-timer []
   (when @interval
     (js/clearInterval @interval)
     (swap! ticker dissoc :interval))
-  (repository/save-timer-state nil))
+  (repository/save-timer-state nil)
+  (swap! sparttt.stage/scene-cursor assoc-in [:timer :layout :navbar :visibility] :show))
 
 (defn time-formatted [dt]
   (when dt
@@ -101,7 +103,8 @@
  (stage/configure-scene
   :timer
   {:layout
-   {:header {:title "Timer"}
+   {:navbar {:visibility :show}
+    :header {:title "Timer"}
     :content {:class [:grid-container]}
     :footer {:visibility :hide}
     :graphics {:icon :stopwatch}}

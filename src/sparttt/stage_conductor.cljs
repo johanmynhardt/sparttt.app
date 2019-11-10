@@ -4,9 +4,19 @@
     [sparttt.stage :as stage]
     [sparttt.ui-elements :as ui-e]))
 
+(def full-screen-activity
+  (rum/cursor-in sparttt.state/app-state [:fs-activity]))
+
+(defn full-screen-activity-start []
+  (reset! full-screen-activity true))
+
+(defn full-screen-activity-stop []
+  (reset! full-screen-activity false))
+
 (rum/defc stage-switcher-widget < rum/reactive
   []
-  (let [active-stage-key (stage/active-stage-key)
+  (let [full-screen? (rum/react full-screen-activity)
+        active-stage-key (stage/active-stage-key)
         is-active? (partial = active-stage-key)
         icon
         (fn [sk]
@@ -15,16 +25,17 @@
             @stage/scene-cursor
             [sk :layout :graphics :icon])))]
 
-    [:div.widget.switcher
-     (->>
-       (keys @stage/scene-cursor)
-       (map
+    (when-not (= :hide (get-in (rum/react stage/scene-cursor) [active-stage-key :layout :navbar :visibility]))
+      [:div.widget.switcher
+       (->>
+        (keys @stage/scene-cursor)
+        (map
          (fn [stage-key]
            [:li
             {:on-click #(stage/activate-stage stage-key)
              :class [(when (is-active? stage-key) :active)]}
             (let [{:keys [icon]} (icon stage-key)]
-              (if icon [icon] (str stage-key)))])))]))
+              (if icon [icon] (str stage-key)))])))])))
 
 (rum/defc header-widget < rum/reactive
   []
@@ -33,7 +44,6 @@
 
 (rum/defc content-widget < rum/reactive
   []
-
   [:div.middle.scroll.comfort.flex
    (stage/scene-for
     (stage/active-stage-key))])

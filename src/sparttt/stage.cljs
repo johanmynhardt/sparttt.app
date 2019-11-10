@@ -36,9 +36,7 @@
 
 (defn active-stage-key
   []
-  (:current
-   #_@stage-cursor
- (rum/react stage-cursor)))
+  (rum/react stage-cursor))
 
 (defn active-stage
   []
@@ -49,8 +47,7 @@
   ;(println "request to activate stage: " stage-key)
   (cond
     (get @scene-cursor stage-key)
-    (swap! stage-cursor assoc
-           :current stage-key)
+    (reset! stage-cursor stage-key)
     
     :else
     (let [message (str "activate-stage request failed. (no key for " stage-key ")")]
@@ -70,7 +67,7 @@
 
 (defn scene-for
   [active-key]
-  ;(println "handling scene for active-key " active-key)
+  (println "handling scene for active-key " active-key)
   (let [{:keys [layout scene]}
         (active-key (deref scene-cursor))]
 

@@ -14,14 +14,28 @@
     [sparttt.ui-elements :as ui-e]
     [clojure.string :as str]))
 
-(def athlete-details (atom nil))
+; :waiting :started :done
+(defonce step (atom :waiting))
+(add-watch
+ step :step
+ (fn [k r o n]
+   (swap!
+    stage/scene-cursor assoc-in [:scan :layout :navbar :visibility]
+    (cond
+      (= :waiting n) :show
+      (= :started n) :hide
+      (= :done n) :show))))
+
+(def last-capture (atom nil))
+(defonce athlete-details (atom nil))
+(add-watch athlete-details :athlete-details (fn [k r o n]
+                                              (when n (reset! step :started))))
+
 (def athlete-sequence (atom nil))
 
 (def sequence-state
   (atom {:override ""
          :show-override false}))
-
-(def last-capture (atom nil))
 
 (defn with-camera [when-ready-fn]
   (let [sci @settings/selected-camera-inst]
@@ -157,30 +171,36 @@
              :min 0
              :step 1})
            [:div.actions
-            (ui-e/button "Next"
-                         {:icon :arrow-circle-right
-                          :class [(when (pos? (js/parseInt (rum/react sequence-override))) :primary)]
-                          :on-click #(process-sequence (or @sequence-override ""))})
-                                        ;debug: [:code (str "sequence: " (rum/react sequence-override))]
-            (ui-e/button "Cancel"
-                         {:icon :trash
-                          :class [:warn]
-                          :on-click
-                          #(do
-                             (reset! sequence-override "")
-                             (reset! show-sequence-override false))})]])
+            (ui-e/button
+             "Next"
+             {:icon :arrow-circle-right
+              :class [(when (pos? (js/parseInt (rum/react sequence-override))) :primary)]
+              :on-click #(process-sequence (or @sequence-override ""))})
+            
+            (ui-e/button
+             "Cancel"
+             {:icon :trash
+              :class [:warn]
+              :on-click
+              #(do
+                 (reset! sequence-override "")
+                 (reset! show-sequence-override false))})]])
 
         (ui-e/button "Undo"
           {:icon :undo
            :on-click
            #(do
+              (reset! step :waiting)
               (reset! athlete-details nil)
               (reset! show-sequence-override false))})
 
         (when-not @show-sequence-override
           (ui-e/button "Override"
             {:icon :keyboard
-             :on-click #(do (println "clickc override") (reset! show-sequence-override true))}))])
+             :on-click
+             #(do
+                (println "click override")
+                (reset! show-sequence-override true))}))])
 
      (when (and athlete sequence)
        [[:div.card.with-gradient
@@ -209,13 +229,17 @@
         (ui-e/button "Next"
           {:icon :arrow-circle-right
            :style {:color :black}
-           :on-click #(reset! last-capture nil)})])]))
+           :on-click
+           #(do (reset! last-capture nil)
+                (swap! stage/scene-cursor assoc-in [:scan :layout :navbar :visibility] :show
+            ))})])]))
 
 (stage/register-scene
  (stage/configure-scene
   :scan
   {:layout
-   {:header {:title "Capture QR"}
+   {:navbar {:visibility :show}
+    :header {:title "Capture QR"}
     :footer {:visibility :hide}
     :graphics {:icon :address-card}}
     
