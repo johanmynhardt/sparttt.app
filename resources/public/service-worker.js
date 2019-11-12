@@ -14,7 +14,7 @@
 // Names of the two caches used in this version of the service worker.
 // Change to v2, etc. when you update any of the local resources, which will
 // in turn trigger the install event again.
-const PRECACHE = 'precache-v1';
+const PRECACHE = 'precache-v5';
 const RUNTIME = 'runtime';
 
 // A list of local resources we always want to be cached.
@@ -52,10 +52,32 @@ self.addEventListener('activate', event => {
       return cacheNames.filter(cacheName => !currentCaches.includes(cacheName));
     }).then(cachesToDelete => {
       return Promise.all(cachesToDelete.map(cacheToDelete => {
+        console.info('purging old cache ', cacheToDelete);
         return caches.delete(cacheToDelete);
       }));
     }).then(() => self.clients.claim())
   );
+
+self.clients.matchAll().then(clients => {
+  //clients.forEach(client => console.info('client: ', client));
+
+  //console.info('posting message to client...');
+  clients.forEach(client => client.postMessage({cacheVersion: PRECACHE}));
+
+  clients.forEach(client => {
+    new Promise(function(resolve, reject) {
+      var channel = new MessageChannel();
+      channel.port1.onmessage = function(e) {
+        if (e.data.error) {
+          reject(e.data.error);
+        } else {
+          resolve(e.data);
+        }
+      };
+    });
+  });
+});
+
 });
 
 
@@ -87,5 +109,4 @@ self.addEventListener('fetch', event => {
     );
   }
 });
-
 

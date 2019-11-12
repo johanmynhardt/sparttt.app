@@ -22,15 +22,28 @@
       <link rel="webfont" href="css/fontawesome/5.11.2/webfonts/fa-solid-900.woff2"/>
   </head>
   <body>
-    <script>
+      <!--code>Version: 6</code-->
+    <script>      
+      window.addEventListener('message', e => console.info('window got message: ', e));
+
+      document.addEventListener('message', e => console.info('document got message: ', e));;
+
       if ('serviceWorker' in navigator) {
         console.info('registering service worker...');
         navigator.serviceWorker.register('service-worker.js');
+        navigator.serviceWorker.addEventListener('message', e => {
+          if (e.data.cacheVersion && e.data.cacheVersion !== localStorage.cacheVersion) {
+            if (window.confirm('New version available. Press OK to reload.')) {
+              window.location.reload(true);
+            }
+          }
+        });
       } else {
         console.warn('Service Workers not supported. Are you on HTTPS?');
       }
     </script>
     <div id="app">
+    
         <div class="grid-container">
             <div class="middle scroll comfort flex">
                 <div class="scene">
@@ -56,6 +69,7 @@
         window.addEventListener('load', function(e) {
           window.history.pushState({}, '');
         });
+        
     </script>
     <script src="cljs-out/dev-main.js" type="text/javascript"></script>
   </body>
