@@ -14,7 +14,7 @@
 // Names of the two caches used in this version of the service worker.
 // Change to v2, etc. when you update any of the local resources, which will
 // in turn trigger the install event again.
-const PRECACHE = 'precache-v5';
+const PRECACHE = 'precache-v7';
 const RUNTIME = 'runtime';
 
 // A list of local resources we always want to be cached.
@@ -25,6 +25,8 @@ const PRECACHE_URLS = [
   '/qrv2/css/fontawesome/5.11.2/css/all.css',
   '/qrv2/cljs-out/dev-main.js',
   '/qrv2/css/fontawesome/5.11.2/webfonts/fa-solid-900.woff2',
+  '/qrv2/css/fonts/RobotoMono-Regular.ttf',
+  '/qrv2/css/fonts/TitilliumWeb-Regular.ttf',
   '/qrv2/favicon/spartan-harriers-logo-150x150.png'
 ];
 

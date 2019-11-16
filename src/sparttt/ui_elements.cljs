@@ -1,6 +1,7 @@
 (ns sparttt.ui-elements
   (:require
     [rum.core :as rum]
+    [sparttt.state]
     [clojure.string :as str]))
 
 (rum/defc button [label & [{:keys [icon] :as attributes}]]
@@ -67,3 +68,40 @@
        :placeholder placeholder
        :on-change (fn [e] (reset! cursor (-> e (.-target) (.-value))))})]]])
 
+(def toast-cursor
+  (rum/cursor-in sparttt.state/app-state [:toast]))
+
+(rum/defc toast < rum/reactive []
+  (let [toast-data (rum/react toast-cursor)]
+    (when (= :show (:visibility toast-data))
+      [[:div.toast.scale-up-center
+        (or (:text toast-data) "no text set.")
+        (when-not (:timeout? toast-data)
+          (button
+           (or (:button-text toast-data) "OK")
+           {:on-click
+            (cond
+              (:dismiss-fn toast-data)
+              (do
+                (fn [e]
+                  ((:dismiss-fn toast-data))
+                  ((:fn toast-data))))
+              :else (:fn toast-data))}))]])))
+
+(defn show-toast [text & [{:keys [timeout visibility keep-open? dismiss-fn] :or {keep-open? false}}]]
+  (swap! toast-cursor assoc
+         :text text
+         :visibility :show
+         :timeout? (some? timeout)
+         :dismiss-fn dismiss-fn)
+  
+  (when (and timeout (not keep-open?))
+    (js/setTimeout
+     #(swap! toast-cursor assoc :visibility :hide)
+     timeout)))
+
+(comment
+  (show-toast "hello2" {:timeout 2000 :keep-open? false})
+
+  (show-toast [:span "oh hi :)" [:br] "xxx"] {:keep-open? false})
+)

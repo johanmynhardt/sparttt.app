@@ -65,6 +65,7 @@
         (ui-e/button
          "Add"
          {:class [(when got-all-details? :primary)]
+          :icon :plus
           :on-click
           #(let [corrected-ident (normalize-ident @ident)
                  existing-visitor-with-id
@@ -88,19 +89,20 @@
                :else
                (js/alert "This is an unexpected condition. Please report a bug!")))})]]]
 
-     [:div
-      [:h3 "Visitors"]
-      
-      [:table
-       [:thead
-        [:tr [:th "VID"] [:th "Name"] [:th "Surname"]]]
-       [:tbody
-        (->>
-         (rum/react visitors-cursor)
-         reverse
-         (map
-          (fn [{:keys [ident first-name last-name]}]
-            [:tr [:td ident] [:td first-name] [:td last-name]])))]]]]))
+     (when (seq (rum/react visitors-cursor))
+       [:div
+        [:h3 "Visitors"]
+        
+        [:table
+         [:thead
+          [:tr [:th "VID"] [:th "Name"] [:th "Surname"]]]
+         [:tbody
+          (->>
+           (rum/react visitors-cursor)
+           reverse
+           (map
+            (fn [{:keys [ident first-name last-name]}]
+              [:tr [:td ident] [:td first-name] [:td last-name]])))]]])]))
 
 (stage/register-scene
  (stage/configure-scene

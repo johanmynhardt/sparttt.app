@@ -9,7 +9,8 @@
     [sparttt.scenes.visitors]
     [sparttt.scenes.consolidate]
     [sparttt.scenes.timer :as timer]
-    [sparttt.repository :as repository]))
+    [sparttt.repository :as repository]
+    [sparttt.ui-elements :as ui]))
 
 (println "This text is printed from src/sparttt/app.cljs. Go ahead and edit it and see reloading in action.")
 
@@ -42,4 +43,19 @@
 ;; needs to run on first load to hydrate repo from localStorage
 (repository/restore-from-local-storage)
 (when (= :running (:timer-state @repository/repo))
-  (timer/start-timer))
+  (timer/start-timer)
+  (reset! sparttt.stage/stage-cursor :timer))
+
+(when (not (:ping @sparttt.state/app-state))
+  (swap! 
+   sparttt.state/app-state assoc :ping
+   (js/setInterval
+    (fn []
+      (when (aget js/localStorage "upversion")
+        (ui/show-toast
+         "Update available. Press OK to reload."
+         {:dismiss-fn
+          (fn [e]
+            (.removeItem js/localStorage "upversion")
+            (.reload js/window.location true))})))
+    5000)))

@@ -32,10 +32,8 @@
         console.info('registering service worker...');
         navigator.serviceWorker.register('service-worker.js');
         navigator.serviceWorker.addEventListener('message', e => {
-          if (e.data.cacheVersion && e.data.cacheVersion !== localStorage.cacheVersion) {
-            if (window.confirm('New version available. Press OK to reload.')) {
-              window.location.reload(true);
-            }
+          if (e.data.cacheVersion) {
+            window.localStorage.upversion = true;
           }
         });
       } else {

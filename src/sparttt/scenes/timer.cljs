@@ -55,7 +55,7 @@
         laps (rum/react laps)]
     [:div.grid-container
      [:div.card.with-gradient
-      [:code {:style {:font-size "33pt"}}
+      [:code.time-display {:style {:font-size "30pt"}}
        (str
          (when (and t genesis)
            (time-formatted
@@ -70,7 +70,7 @@
         (for [{:keys [seq duration]} (take 15 (rseq laps))]
           [:tr
            [:td [:b (str seq)]]
-           [:td (when duration (time-formatted duration))]])]]]
+           [:td.time-display (when duration (time-formatted duration))]])]]]
 
      [:div.foot
       [:p]

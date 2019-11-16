@@ -69,4 +69,5 @@
      (header-widget)
      (content-widget)
      (ui-e/video-modal)
+     (ui-e/toast)
      (footer-widget)]))
