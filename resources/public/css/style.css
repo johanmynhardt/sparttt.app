@@ -300,6 +300,7 @@ div.field {
     margin: 0.5em;    
     border: 1px #ddd solid;
     display:inline-block;
+    text-align: center;
 }
 
 div.field > label {
@@ -309,6 +310,7 @@ div.field > label {
     border: 0px solid red;
     display: inline-block;
     padding: 0.2em;
+    font-weight: bold;
 }
 
 div.field > input {
@@ -316,6 +318,12 @@ div.field > input {
     display: inline-block;
     padding: 0.2em;
     width: 12em;
+}
+
+div.field > input:focus {
+    outline-color: transparent;
+    border-bottom: 2px solid #2196F3;
+    font-weight: bold;
 }
 
 div.toast {
