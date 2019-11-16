@@ -103,7 +103,7 @@
  (stage/configure-scene
   :timer
   {:layout
-   {:navbar {:visibility :show}
+   {:navbar {:index 2 :visibility :show}
     :header {:title "Timer"}
     :content {:class [:grid-container]}
     :footer {:visibility :hide}

@@ -238,7 +238,7 @@
  (stage/configure-scene
   :scan
   {:layout
-   {:navbar {:visibility :show}
+   {:navbar {:index 1 :visibility :show}
     :header {:title "Capture QR"}
     :footer {:visibility :hide}
     :graphics {:icon :address-card}}

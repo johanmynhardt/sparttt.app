@@ -27,10 +27,11 @@
 
     (when-not (= :hide (get-in (rum/react stage/scene-cursor) [active-stage-key :layout :navbar :visibility]))
       [:div.widget.switcher
-       (->>
-        (keys @stage/scene-cursor)
+       (->> 
+        @stage/scene-cursor
+        (sort-by (fn [[_ v]] (get-in v [:layout :navbar :index])))
         (map
-         (fn [stage-key]
+         (fn [[stage-key]]
            [:li
             {:on-click #(stage/activate-stage stage-key)
              :class [(when (is-active? stage-key) :active)]}

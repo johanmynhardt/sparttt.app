@@ -108,7 +108,8 @@
  (stage/configure-scene
   :visitors
   {:layout
-   {:header {:title "Visitors"}
+   {:navbar {:index 4}
+    :header {:title "Visitors"}
     :graphics {:icon :handshake}}
    
    :scene #'scene}))

@@ -144,7 +144,8 @@
  (stage/configure-scene
   :settings
   {:layout
-   {:header {:title "Settings"}
+   {:navbar {:index 3}
+    :header {:title "Settings"}
     :graphics {:icon :cog}}
    
    :scene #'scene}))

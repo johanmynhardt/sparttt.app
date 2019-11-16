@@ -15,7 +15,8 @@
     deep-merge
     (cons
      {:layout
-      {:header {:visibility :show}
+      {:navbar {:index 999}
+       :header {:visibility :show}
        :content {:visibility :show :class []}
        :footer {:visibility :show}
        :graphics {:icon :fa-question}}

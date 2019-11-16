@@ -328,7 +328,8 @@
  (stage/configure-scene
   :consolidate
   {:layout
-   {:header {:title "Consolidate Data"}
+   {:navbar {:index 5}
+    :header {:title "Consolidate Data"}
     :footer {:visibility :hide}
     :graphics {:icon :sort-amount-down}}
    

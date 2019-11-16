@@ -28,7 +28,8 @@
  (stage/configure-scene
   :home
   {:layout
-   {:header {:title "Home"}
+   {:navbar {:index 0}
+    :header {:title "Home"}
     :graphics {:icon :home}}
     
    :scene #'scene}))
