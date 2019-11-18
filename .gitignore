@@ -14,3 +14,6 @@ pom.xml
 .idea/
 resources/public/cljs-out/
 *.iml
+dev/dev-key.pem
+resources/public/dev-key.pem
+resources/public/simple-https-server.py
