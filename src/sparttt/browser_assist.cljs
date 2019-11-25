@@ -26,9 +26,15 @@
         mime (:mime type-info)
         blob (new js/Blob [data] (clj->js {:type mime}))
         link (.createElement js/document "a")
-        _ (set! (.-href link) (.createObjectURL js/window.URL blob))
-        _ (set! (.-download link) (str filename "." (:ext type-info)))]
-    (.click link)))
+        reader (js/FileReader.)]
+
+    (set!
+      (.-onload reader)
+      (fn [_]
+        (set! (.-href link) (.-result reader))
+        (set! (.-download link) (str filename "." (:text type-info)))
+        (.click link)))
+    (-> reader (.readAsDataURL blob))))
 
 (defn vibrate [& pattern]
   (-> js/document
