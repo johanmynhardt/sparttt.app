@@ -120,7 +120,7 @@
         (ui/button "Visitors"
           {:icon :handshake
            :on-click
-           #(browser-assist/initiate-download :csv
+           #(browser-assist/initiate-form-post-download :csv
               (->>
                 (deref repository/repo)
                 :visitors

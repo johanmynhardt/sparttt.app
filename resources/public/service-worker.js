@@ -14,7 +14,7 @@
 // Names of the two caches used in this version of the service worker.
 // Change to v2, etc. when you update any of the local resources, which will
 // in turn trigger the install event again.
-const PRECACHE = 'precache-v-0c6b957';
+const PRECACHE = 'precache-v-71449f1';
 const RUNTIME = 'runtime';
 
 // A list of local resources we always want to be cached.
@@ -89,7 +89,20 @@ self.clients.matchAll().then(clients => {
 self.addEventListener('fetch', event => {
   console.info('request worker intercepting fetch: ', event.request.url);
   // Skip cross-origin requests, like those for Google Analytics.
-  if (event.request.url.startsWith(self.location.origin)) {
+
+  if (event.request.url.indexOf('/dl/') > -1) {
+    event.respondWith(event.request.formData().then(function (formdata){
+      var filename = formdata.get("filename");
+      var body = formdata.get("filebody");
+      var response = new Response(body);
+      response.headers.append('Content-Disposition', 'attachment; filename="' + filename + '"');
+      response.headers.append('Content-Type', 'application/octet-stream');
+      return response;
+    }));
+ 
+  }
+
+  if (null && event.request.url.startsWith(self.location.origin)) {
     console.info('requesting url from service-worker: ', event.request.url);
     event.respondWith(
       caches.match(event.request).then(cachedResponse => {

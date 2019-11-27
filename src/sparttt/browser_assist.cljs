@@ -36,9 +36,55 @@
         (.click link)))
     (-> reader (.readAsDataURL blob))))
 
+(defn initiate-form-post-download [type data filename]
+  (let [type-info (get mime-types type)
+        mime (:mime type-info)
+        form (-> js/document (.createElement "form"))
+        el-filename (-> js/document (.createElement "input"))
+        filebody (-> js/document (.createElement "textarea"))
+        submit (-> js/document (.createElement "input"))]
+
+        
+    (set! (.-action form) "/dl/download-file")
+    (set! (.-method form) "post")
+    (set! (.-hidden form) "hidden")
+    
+    (set! (.-id el-filename) "filename")
+    (set! (.-name el-filename) "filename")
+    (set! (.-type el-filename) "text")
+    (set! (.-value el-filename) (str filename "." (:text type-info)))
+
+    (set! (.-id filebody) "filebody")
+    (set! (.-name filebody) "filebody")
+    (set! (.-innerText filebody) data)
+
+    (set! (.-type submit) "submit")
+
+    (-> form (.appendChild el-filename))
+    (-> form (.appendChild filebody))
+    (-> form (.appendChild submit))
+
+
+    (-> js/document .-body (.appendChild form))
+
+    (js/setTimeout
+     (fn [_]
+       (.submit form)
+
+       (js/setTimeout
+        (fn [_] (-> js/document .-body (.removeChild form)))
+        500))
+     100)))
+
 (defn vibrate [& pattern]
   (-> js/document
     (.dispatchEvent (new js/CustomEvent "sparttt.vibrate" (clj->js {:detail pattern}))))
   #_(browser.event/dispatch-event js/document (new js/CustomEvent (clj->js {:detail pattern}))))
 
 ;(initiate-download "text/plain" "hello world!" "foobar.txt")
+(comment 
+ (initiate-form-post-download nil "1,2,3" "test1.txt")
+
+)
+
+
