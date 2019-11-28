@@ -14,7 +14,7 @@
 // Names of the two caches used in this version of the service worker.
 // Change to v2, etc. when you update any of the local resources, which will
 // in turn trigger the install event again.
-const PRECACHE = 'precache-v-71449f1';
+const PRECACHE = 'precache-v-1a26445x';
 const RUNTIME = 'runtime';
 
 // A list of local resources we always want to be cached.
@@ -90,7 +90,7 @@ self.addEventListener('fetch', event => {
   console.info('request worker intercepting fetch: ', event.request.url);
   // Skip cross-origin requests, like those for Google Analytics.
 
-  if (event.request.url.indexOf('/dl/') > -1) {
+  if (event.request.url.indexOf('init-download') > -1) {
     event.respondWith(event.request.formData().then(function (formdata){
       var filename = formdata.get("filename");
       var body = formdata.get("filebody");

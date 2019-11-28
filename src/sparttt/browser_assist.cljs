@@ -45,7 +45,7 @@
         submit (-> js/document (.createElement "input"))]
 
         
-    (set! (.-action form) "/dl/download-file")
+    (set! (.-action form) "init-download")
     (set! (.-method form) "post")
     (set! (.-hidden form) "hidden")
     
@@ -56,7 +56,7 @@
 
     (set! (.-id filebody) "filebody")
     (set! (.-name filebody) "filebody")
-    (set! (.-innerText filebody) data)
+    (set! (.-innerHTML filebody) data)
 
     (set! (.-type submit) "submit")
 
@@ -74,7 +74,7 @@
        (js/setTimeout
         (fn [_] (-> js/document .-body (.removeChild form)))
         500))
-     100)))
+     1000)))
 
 (defn vibrate [& pattern]
   (-> js/document
