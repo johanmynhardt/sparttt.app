@@ -241,6 +241,9 @@
     (ui-e/button "Import Files"
                  {:icon :file-import
                   :on-click #(-> (js/document.querySelector "input#filechooser") (.click))})
+    (ui-e/button "From Backend"
+                 {:icon :cloud-download-alt
+                  :on-click #(ui-e/show-toast [:em "Not yet implemented."] {:keep-open? true})})
     [:input#filechooser
      {:type "file"
       :hidden :hidden

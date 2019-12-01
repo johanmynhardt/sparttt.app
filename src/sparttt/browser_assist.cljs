@@ -88,3 +88,21 @@
 )
 
 
+
+(comment
+
+  (try 
+    (-> 
+     (sparttt.aws/post-event-data "2019-12-01-abc123" "test-from-app.txt" "Hello World!")
+     (.then (fn [result] (js/alert (str "upload result: " (.stringify js/JSON result))))))
+    (catch :default e (js/alert e)))
+ ;; fetch('https://api-id.execute-api.region-id.amazonaws.com/beta/events/ab12cd/upload', 
+ ;;   {
+ ;;     method: 'POST',
+ ;;     headers: {
+ ;;       'x-filename': 'test2.csv'
+ ;;     },
+ ;;     body: "firstname,lastname\nJohn,Doe3\n"
+ ;;   }
+ ;; ).then(e => e.json()).then(console.info)
+)

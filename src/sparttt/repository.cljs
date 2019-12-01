@@ -2,8 +2,15 @@
   (:require
     [cljs.reader]))
 
-(def empty-repo
-  {:scans []
+(def non-clearing-keys
+  [:camera-id
+   :app-key
+   :device-uuid])
+
+(defonce empty-repo
+  {:app-key ""
+   :device-uuid (subs (str (random-uuid)) 0 8)
+   :scans []
    :journal []
    :laps []
    :visitors []
@@ -59,10 +66,11 @@
   "Clears the localStorage at the bound `storage-key` (tt-repo by default)"
   [& [confirmed]]
   (when confirmed
+    (let [old-vals (select-keys @repo non-clearing-keys)])
     (aset js/localStorage storage-key
       (->>
-        (:camera-id @repo)
-        (assoc empty-repo :camera-id )
+        (select-keys @repo non-clearing-keys)
+        (merge empty-repo)
         (reset! repo)))))
 
 (defn save-scan [val]

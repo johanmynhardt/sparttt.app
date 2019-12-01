@@ -3,9 +3,11 @@
     [cljs-time.coerce :as time.coerce]
     [cljs-time.core :as time]
     [clojure.string :as str]
+    [goog.functions :as gfns]
     [Instascan]
     [Instascan.Camera]
     [rum.core :as rum]
+    [sparttt.aws :as aws]
     [sparttt.ui-elements :as ui]
     [sparttt.browser-assist :as browser-assist]
     [sparttt.repository :as repository]
@@ -18,6 +20,16 @@
     (println "watch: selected camera: " n)))
 
 (defonce selected-camera-inst (atom nil))
+
+(defonce app-key (rum/cursor-in repository/repo [:app-key]))
+(add-watch
+ app-key :app-key
+ (->
+  (fn [k r o n]
+    (when (not= o n)
+      (println "app-key changed: " o " -> " n)
+      (repository/set-local-key :app-key n)))
+  (goog.functions/debounce 500)))
 
 (when (or (nil? @cameras) (not (seq @cameras)))
   (->
@@ -34,6 +46,81 @@
                :name (.-name cam)})
             (when (= (.-id cam) (repository/camera-id))
               (reset! selected-camera-inst cam))))))))
+
+(defn as-csv [extract transform headers data]
+  (->>
+   data
+   (map extract)
+   (map transform)
+   (map #(str/join "," %))
+   (cons (str/join "," headers))
+   (str/join \newline)))
+
+(defn laps-csv []
+  (->>
+   (:laps @repository/repo)
+   (as-csv
+    (juxt :seq :timestamp)
+    (fn [[seq timestamp]]
+      [(if (= :genesis seq) 0 seq) (time.coerce/to-string timestamp)])
+    ["lap" "timestamp"])))
+
+(defn scans-csv []
+  (->>
+   (:scans @repository/repo)
+   (as-csv
+    (juxt :seq :athlete)
+    (fn [{:keys [seq]} {:keys [name id tstamp]}]
+      [(if (= :genesis seq) 0 seq) name id (time.coerce/to-string tstamp)])
+    ["seq" "name" "id" "timestamp"])))
+
+(defn visitors-csv []
+  (->>
+   (:visitors @repository/repo)
+   (as-csv
+    (juxt :ident :first-name :last-name)
+    (fn [[ident first-name last-name]]
+      [ident first-name last-name])
+    ["ident" "first-name" "last-name"])))
+
+(defn push-remote
+  "Push Lap, Scan or Visitor data to backend."
+  []
+  (let [date-part (time.coerce/to-local-date (time/now))
+        {:keys [app-key device-uuid]} @repository/repo
+        eid (when (some? (seq app-key)) (str date-part "-" app-key))
+        filename (fn [base-name & [ext]] (str base-name "-" device-uuid (or ext ".csv")))
+
+        data-to-send
+        (->>
+         [[:scans (filename "scan-data") (scans-csv)]
+          [:laps (filename "laps-data") (laps-csv)]
+          [:visitors (filename "visitor-data") (visitors-csv)]          ]
+         (filter
+          (fn [[k _ d]]
+            (let [line-count (count (str/split-lines d))]
+              (println k "line-count: " line-count)
+              (> line-count 1))))
+         (cons [:repo (filename "repository-data" ".edn") (str @repository/repo)]))
+
+        result-atom (atom [])]
+
+    (cond
+      (and eid (seq data-to-send))
+      (do
+        (ui/show-toast [:span "Submitted request/s." [:br] "Waiting for results..."] {:keep-open? true})
+        (doseq [[k fname d] data-to-send]
+          (aws/post-event-data
+           eid fname d 
+           (fn [m]
+             (swap! result-atom conj k)
+             (ui/show-toast
+              [:span "Got result for " (str @result-atom) [:br]]
+              {:keep-open? true})))))
+
+      :else
+      (ui/show-toast [:span [:b "Warning:"] " " "No results to submit." [:br]
+                      "Is a key set and are there results captured?"] {:keep-open? true}))))
 
 (rum/defc scene < rum/reactive []
   (let [cameras (rum/react cameras)
@@ -90,47 +177,32 @@
         (ui/button "Laps"
           {:icon :list
            :on-click
-           #(browser-assist/initiate-download :csv
-              (->>
-                (deref repository/repo)
-                :laps
-                (map (juxt :seq :timestamp))
-                (map
-                  (fn [[seq timestamp]]
-                    (str/join "," [(if (= :genesis seq) 0 seq) (time.coerce/to-string timestamp)])))
-                (cons "lap,timestamp")
-                (str/join \newline))
-              (str "laps-data-" (time.coerce/to-local-date (time/now))))})
+           #(browser-assist/initiate-download
+             :csv (laps-csv)
+             (str "laps-data-" (time.coerce/to-local-date (time/now))))})
 
         (ui/button "Scans"
           {:icon :address-card
            :on-click
-           #(browser-assist/initiate-download :csv
-              (->>
-                (deref repository/repo)
-                :scans
-                (map (juxt :seq :athlete))
-                (map
-                  (fn [[{:keys [seq]} {:keys [name id tstamp]}]]
-                    (str/join "," [(if (= :genesis seq) 0 seq) name id (time.coerce/to-string tstamp)])))
-                (cons "seq,name,id,timestamp")
-                (str/join \newline))
-              (str "scan-data-" (time.coerce/to-local-date (time/now))))})
+           #(browser-assist/initiate-download
+             :csv (scans-csv)
+             (str "scan-data-" (time.coerce/to-local-date (time/now))))})
 
         (ui/button "Visitors"
           {:icon :handshake
            :on-click
-           #(browser-assist/initiate-form-post-download :csv
-              (->>
-                (deref repository/repo)
-                :visitors
-                (map (juxt :ident :first-name :last-name))
-                (map
-                  (fn [[ident first-name last-name]]
-                    (str/join "," [ident first-name last-name])))
-                (cons "ident,first-name,last-name")
-                (str/join \newline))
+           #(browser-assist/initiate-form-post-download
+             :csv
+             (visitors-csv)
               (str "visitor-data-" (time.coerce/to-local-date (time/now))))})]
+
+       [:div [:p "Backend Synchronization"]
+        (ui/input app-key "Key") [:br]
+        (ui/button
+         "Sync"
+         {:icon :cloud-upload-alt
+          :on-click push-remote})]
+
 
        [:div [:p "Clean up:"]
         (ui/button "Purge Data"
