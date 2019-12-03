@@ -52,3 +52,8 @@
 
     (catch :default e
       (js/alert e))))
+
+(defn fetch-consolidation-data
+  [event-id on-resolve]
+  (fetch
+   (build-uri "events" event-id "for-consolidation") {} on-resolve))

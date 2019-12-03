@@ -70,7 +70,7 @@
    (:scans @repository/repo)
    (as-csv
     (juxt :seq :athlete)
-    (fn [{:keys [seq]} {:keys [name id tstamp]}]
+    (fn [[{:keys [seq]} {:keys [name id tstamp]}]]
       [(if (= :genesis seq) 0 seq) name id (time.coerce/to-string tstamp)])
     ["seq" "name" "id" "timestamp"])))
 

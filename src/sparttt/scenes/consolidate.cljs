@@ -5,6 +5,7 @@
    [cljs-time.coerce :as time.coerce]
    [cljs-time.format :as time.format]
    [clojure.string :as str]
+   [sparttt.aws :as aws]
    [sparttt.repository :as repository]
    [sparttt.ui-elements :as ui-e]
    [sparttt.stage :as stage]
@@ -15,6 +16,8 @@
 (def laps-cursor (rum/cursor-in repository/repo [:consolidate :laps]))
 (def visitors-cursor (rum/cursor-in repository/repo [:consolidate :visitors]))
 (def results-cursor (rum/cursor-in repository/repo [:consolidate :results]))
+
+(def backend-key-cursor (rum/cursor-in repository/repo [:consolidate :event-key]))
 
 ;;;; Time processing utilities =========================
 
@@ -82,6 +85,7 @@
              data
              (map
               (fn [[seq name id timestamp :as scan]]
+                (println "processing scan: " scan)
                 [(if (re-matches #"\d+" seq) (js/parseInt seq) seq)
                  {:id id
                   :seq (if (re-matches #"\d+" seq) (js/parseInt seq) seq)
@@ -233,6 +237,13 @@
     (when cursor
       (swap! cursor update :source (fn [coll] (conj coll result))))))
 
+(comment 
+  (aws/fetch-consolidation-data
+   "20191203-aoeu"
+   (fn [result]
+     (doseq [{:keys [filename content]} (:files result)]
+       (populate-consolidate-source {:name filename :data (file-content-to-data content)})))))
+
 ;;;; UI Scene + Components ================================
 (rum/defc scene < rum/reactive []
   [:div "Select CSV files to consolidate into results."
@@ -243,7 +254,29 @@
                   :on-click #(-> (js/document.querySelector "input#filechooser") (.click))})
     (ui-e/button "From Backend"
                  {:icon :cloud-download-alt
-                  :on-click #(ui-e/show-toast [:em "Not yet implemented."] {:keep-open? true})})
+                  :on-click
+                  (fn [e]
+                    (cond
+                      (and @backend-key-cursor (not (empty? @backend-key-cursor)))
+                      (aws/fetch-consolidation-data
+                       @backend-key-cursor
+                       (fn [result]
+                         (cond
+                           (seq (:files result))
+                           (doseq [{:keys [filename content]} (:files result)]
+                             (populate-consolidate-source
+                              {:name filename
+                               :data (file-content-to-data content)}))
+                           
+                           :else
+                           (ui-e/show-toast [:div [:b "No Files"] [:p "No files available."]]))))
+
+                      :else
+                      (ui-e/show-toast [:div [:b "Event Key Required"] [:p "Please provide the event key to process."]] {:keep-open? true}))
+                    )
+                  #_#_:on-click #(ui-e/show-toast [:em "Not yet implemented."] {:keep-open? true})})
+    (ui-e/input backend-key-cursor "Event Key")
+
     [:input#filechooser
      {:type "file"
       :hidden :hidden
