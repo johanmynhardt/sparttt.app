@@ -5,7 +5,8 @@
 (def non-clearing-keys
   [:camera-id
    :app-key
-   :device-uuid])
+   :device-uuid
+   :event-key])
 
 (defonce empty-repo
   {:app-key ""

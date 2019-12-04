@@ -17,7 +17,7 @@
 (def visitors-cursor (rum/cursor-in repository/repo [:consolidate :visitors]))
 (def results-cursor (rum/cursor-in repository/repo [:consolidate :results]))
 
-(def backend-key-cursor (rum/cursor-in repository/repo [:consolidate :event-key]))
+(def backend-key-cursor (rum/cursor repository/repo :event-key))
 
 ;;;; Time processing utilities =========================
 
