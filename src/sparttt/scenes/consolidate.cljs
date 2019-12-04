@@ -244,6 +244,14 @@
      (doseq [{:keys [filename content]} (:files result)]
        (populate-consolidate-source {:name filename :data (file-content-to-data content)})))))
 
+(defn process-consolidation-data []
+  (let [results
+        (collate-data 
+         (process-laps (extract-source-data :laps))
+         (process-scans (extract-source-data :scans))
+         (process-visitors (extract-source-data :visitors)))]
+    (reset! results-cursor results)))
+
 ;;;; UI Scene + Components ================================
 (rum/defc scene < rum/reactive []
   [:div "Select CSV files to consolidate into results."
@@ -258,18 +266,35 @@
                   (fn [e]
                     (cond
                       (and @backend-key-cursor (not (empty? @backend-key-cursor)))
-                      (aws/fetch-consolidation-data
-                       @backend-key-cursor
-                       (fn [result]
-                         (cond
-                           (seq (:files result))
-                           (doseq [{:keys [filename content]} (:files result)]
-                             (populate-consolidate-source
-                              {:name filename
-                               :data (file-content-to-data content)}))
-                           
-                           :else
-                           (ui-e/show-toast [:div [:b "No Files"] [:p "No files available."]]))))
+                      (do
+                        (ui-e/show-toast 
+                         [:div [:i.fas.fa-spinner] " " [:b "Fetching"]
+                          [:p "Fetching data from cloud storage..."]]
+                         
+                         {:keep-open? true})
+                        
+                        (aws/fetch-consolidation-data
+                         @backend-key-cursor
+                         (fn [result]
+                           (cond
+                             (seq (:files result))
+                             (do
+                               (ui-e/show-toast
+                                [:div [:b "Received Data"]
+                                 [:p "Processing results... " [:li.fas.fa-spinner]]])
+                               (doseq [{:keys [filename content]} (:files result)]
+                                 (populate-consolidate-source
+                                  {:name filename
+                                   :data (file-content-to-data content)}))
+                               (process-consolidation-data)
+                               (ui-e/show-toast
+                                [:div [:i.fas.fa-check] " " [:b "Processing Complete"]
+                                 [:p "The results are processed and available as CSV and Text."
+                                  [:br]
+                                  "Use the relevant buttons to get the data."]]))
+                             
+                             :else
+                             (ui-e/show-toast [:div [:b "No Files"] [:p "0 files returned from cloud storage."]])))))
 
                       :else
                       (ui-e/show-toast [:div [:b "Event Key Required"] [:p "Please provide the event key to process."]] {:keep-open? true}))
@@ -312,8 +337,8 @@
     (ui-e/button
      "Process"
      {:icon :sync
-      :on-click
-      #(let [results
+      :on-click process-consolidation-data
+      #_(let [results
              (collate-data 
               (process-laps (extract-source-data :laps))
               (process-scans (extract-source-data :scans))
