@@ -16,6 +16,7 @@
 (def laps-cursor (rum/cursor-in repository/repo [:consolidate :laps]))
 (def visitors-cursor (rum/cursor-in repository/repo [:consolidate :visitors]))
 (def results-cursor (rum/cursor-in repository/repo [:consolidate :results]))
+(def source-cursor (rum/cursor-in repository/repo [:config :consolidate-source]))
 
 (def backend-key-cursor (rum/cursor repository/repo :event-key))
 
@@ -254,96 +255,122 @@
 
 ;;;; UI Scene + Components ================================
 (rum/defc scene < rum/reactive []
-  [:div "Select CSV files to consolidate into results."
+  [:div
    
-   [:div.actions 
-    (ui-e/button "Import Files"
-                 {:icon :file-import
-                  :on-click #(-> (js/document.querySelector "input#filechooser") (.click))})
-    (ui-e/button "From Backend"
-                 {:icon :cloud-download-alt
-                  :on-click
-                  (fn [e]
-                    (cond
-                      (and @backend-key-cursor (not (empty? @backend-key-cursor)))
-                      (do
-                        (ui-e/show-toast 
-                         [:div [:i.fas.fa-spinner] " " [:b "Fetching"]
-                          [:p "Fetching data from cloud storage..."]]
-                         
-                         {:keep-open? true})
-                        
-                        (aws/fetch-consolidation-data
-                         @backend-key-cursor
-                         (fn [result]
-                           (cond
-                             (seq (:files result))
-                             (do
-                               (ui-e/show-toast
-                                [:div [:b "Received Data"]
-                                 [:p "Processing results... " [:li.fas.fa-spinner]]])
-                               (doseq [{:keys [filename content]} (:files result)]
-                                 (populate-consolidate-source
-                                  {:name filename
-                                   :data (file-content-to-data content)}))
-                               (process-consolidation-data)
-                               (ui-e/show-toast
-                                [:div [:i.fas.fa-check] " " [:b "Processing Complete"]
-                                 [:p "The results are processed and available as CSV and Text."
-                                  [:br]
-                                  "Use the relevant buttons to get the data."]]))
-                             
-                             :else
-                             (ui-e/show-toast [:div [:b "No Files"] [:p "0 files returned from cloud storage."]])))))
-
-                      :else
-                      (ui-e/show-toast [:div [:b "Event Key Required"] [:p "Please provide the event key to process."]] {:keep-open? true}))
-                    )
-                  #_#_:on-click #(ui-e/show-toast [:em "Not yet implemented."] {:keep-open? true})})
-    (ui-e/input backend-key-cursor "Event Key")
-
-    [:input#filechooser
-     {:type "file"
-      :hidden :hidden
-      :accept :.csv
-      :multiple "multiple"
-      :on-change
-      (fn [e]
-        (doseq [file (files-from-event e)]
-          (parse-csv-file file populate-consolidate-source)))}]]
-
-   [:div
-    [:h3 "Lap Data"]
-
-    [:ul
-     (for [s (:source (rum/react laps-cursor))]
-       [:li (:name s) " (" (dec (count (:data s))) " rows)"])]]
-
-   [:div
-    [:h3 "Scan Data"]
+   [:div.card
+    [:div.title [:i.fas.fa-file-import] " " "Data Source"
+     (ui-e/help
+      [:span
+       "The consolidation process consists of selecting files
+              from the local device or from the cloud."
+       [:br]
+       "The data is then processed and presented in a table with
+              the data available as a CSV or text download." [:br]]
+      {:icon :question-circle})]
     
-    [:ul
-     (for [s (:source (rum/react scans-cursor))]
-       [:li (:name s) " (" (dec (count (:data s))) " rows)"])]]
+    [:p "Choose origin of data:" ]
+    (let [source (rum/react source-cursor)]
+      [[:select.select
+        {:value (rum/react source-cursor)
+         :on-change
+         (fn [e]
+           (println "source change: " (reset! source-cursor (keyword (-> e .-target .-value)))))}
+        [:option {:value :local :selected (= :local source)} "File/s on device"]
+        [:option {:value :cloud :selected (= :cloud source)} "Sync using event key"]]
 
-   [:div
-    [:h3 "Visitor Data"]
+       (cond
+         (= :cloud (rum/react source-cursor))
+         [:div 
+          (ui-e/input backend-key-cursor "Event Key")
+          [:div.actions
+           (ui-e/button
+            "Process from Cloud"
+            {:icon :cloud-download-alt
+             :on-click
+             (fn [e]
+               (cond
+                 (and @backend-key-cursor (not (empty? @backend-key-cursor)))
+                 (do
+                   (ui-e/show-toast 
+                    [:div [:i.fas.fa-spinner] " " [:b "Fetching"]
+                     [:p "Fetching data from cloud storage..."]]
+                    
+                    {:keep-open? true})
+                   
+                   (aws/fetch-consolidation-data
+                    @backend-key-cursor
+                    (fn [result]
+                      (cond
+                        (seq (:files result))
+                        (do
+                          (ui-e/show-toast
+                           [:div [:b "Received Data"]
+                            [:p "Processing results... " [:li.fas.fa-spinner]]])
+                          (doseq [{:keys [filename content]} (:files result)]
+                            (populate-consolidate-source
+                             {:name filename
+                              :data (file-content-to-data content)}))
+                          (process-consolidation-data)
+                          (ui-e/show-toast
+                           [:div [:i.fas.fa-check] " " [:b "Processing Complete"]
+                            [:p "The results are processed and available as CSV and Text."
+                             [:br]
+                             "Use the relevant buttons to get the data."]]))
+                        
+                        :else
+                        (ui-e/show-toast [:div [:b "No Files"] [:p "0 files returned from cloud storage."]])))))
+                 
+                 :else
+                 (ui-e/show-toast
+                  [:div
+                   [:b "Event Key Required"]
+                   [:p "Please provide the event key to process."]]
+                  {:keep-open? true})))})]]
 
-    [:ul
-     (for [v (-> (rum/react visitors-cursor) :source)]
-       [:li (:name v) " (" (dec (count (:data v))) " rows)"])]]
+         :else
+         [:div.actions
+          (ui-e/button
+           "Select Files"
+           {:icon :file-import
+            :on-click #(-> (js/document.querySelector "input#filechooser") (.click))})
+          
+          [:input#filechooser
+           {:type "file"
+            :hidden :hidden
+            :accept :.csv
+            :multiple "multiple"
+            :on-change
+            (fn [e]
+              (doseq [file (files-from-event e)]
+                (parse-csv-file file populate-consolidate-source)))}]])])]
 
-   [:div.actions
-    (ui-e/button
-     "Process"
-     {:icon :sync
-      :on-click process-consolidation-data
-      #_(let [results
-             (collate-data 
-              (process-laps (extract-source-data :laps))
-              (process-scans (extract-source-data :scans))
-              (process-visitors (extract-source-data :visitors)))]
-         (reset! results-cursor results))})]
+   [:div.card
+    [:div.title [:i.fas.fa-file] " " "Sources"]
+
+    [:div
+     [:h3 "Lap Data"]
+
+     [:ul
+      (for [s (:source (rum/react laps-cursor))]
+        [:li (:name s) " (" (dec (count (:data s))) " rows)"])]]
+
+    [:div
+     [:h3 "Scan Data"]
+     
+     [:ul
+      (for [s (:source (rum/react scans-cursor))]
+        [:li (:name s) " (" (dec (count (:data s))) " rows)"])]]
+
+    [:div
+     [:h3 "Visitor Data"]
+
+     [:ul
+      (for [v (-> (rum/react visitors-cursor) :source)]
+        [:li (:name v) " (" (dec (count (:data v))) " rows)"])]]]
+
+   (when (not= :cloud (rum/react source-cursor))
+     [:div.actions
+      (ui-e/button "Process" {:icon :sync :on-click process-consolidation-data})])
 
    (when (rum/react results-cursor)
      [:div

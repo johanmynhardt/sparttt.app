@@ -272,6 +272,11 @@ td {
     margin-bottom: 0.5em;
 }
 
+.icon-button {
+    padding-left: 6px;
+    border-radius: 50% !important;
+}
+
 .button.warn {
     color: black;
     background-color: lightpink;

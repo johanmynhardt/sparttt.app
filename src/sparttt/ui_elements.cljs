@@ -5,11 +5,16 @@
     [clojure.string :as str]))
 
 (rum/defc button [label & [{:keys [icon] :as attributes}]]
-  [:li.fas.fa-chart-bar]
+  #_[:li.fas.fa-chart-bar]
   [:button.button (dissoc attributes :icon)
    (when icon
      [(keyword (str "i.fas.fa-" (name icon))) " "])
    (when icon " ") label])
+
+(rum/defc icon-button [icon on-click]
+  [:button.icon-button
+   {:on-click on-click}
+   [(keyword (str "i.fas.fa-" (name icon)))]])
 
 (defn get-video-preview []
   (.querySelector js/document "#preview"))
@@ -105,3 +110,13 @@
 
   (show-toast [:span "oh hi :)" [:br] "xxx"] {:keep-open? false})
 )
+
+(rum/defc help [content & [{:keys [title icon]}]]
+  (icon-button (or icon :question)
+      (fn [_]
+        (show-toast
+         (into
+          [:span [:i.fas.fa-question] " " [:b (or title "Help")] [:br]
+           content])
+         {:keep-open? true})))
+  )
