@@ -1,0 +1,12 @@
+{
+  "name": "sparttt.app",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:johanmynhardt/sparttt.app.git",
+  "author": "Johan Mynhardt <johanmynhardt@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0"
+  }
+}
