@@ -1,6 +1,7 @@
 (ns sparttt.repository
   (:require
-    [cljs.reader]))
+    [cljs.reader]
+    [goog.functions]))
 
 (def non-clearing-keys
   [:camera-id
@@ -24,19 +25,25 @@
     :visitors {:source []}
     :results nil}})
 
-(defonce repo
-  (atom empty-repo))
-
-(def ^:dynamic storage-key "tt-repo")
+(def storage-key "tt-repo")
+(defonce repo (atom empty-repo))
+(add-watch
+ repo :repo
+ (goog.functions/debounce
+  (fn [k r o n]
+    (when (not= o n)
+      (println "persisting to localStorage")
+      (aset js/localStorage storage-key n)))
+  500))
 
 (defn- append-to-local-collection [col-key val]
-  (aset js/localStorage storage-key
-    (swap! repo update col-key
-      (fn [col] (conj col val)))))
+  (swap!
+   repo
+   update col-key
+   (fn [col] (conj col val))))
 
 (defn- set-local-key [key value]
-  (aset js/localStorage storage-key
-    (swap! repo assoc key value)))
+  (swap! repo assoc key value))
 
 
 (defn- read-repo []
@@ -58,21 +65,16 @@
   [records]
   (doseq [[col-key entry] (map first records)]
     (swap! repo update col-key
-      (fn [col] (conj col entry))))
-
-  (aset js/localStorage storage-key
-    (deref repo)))
+      (fn [col] (conj col entry)))))
 
 (defn purge
   "Clears the localStorage at the bound `storage-key` (tt-repo by default)"
   [& [confirmed]]
   (when confirmed
-    (let [old-vals (select-keys @repo non-clearing-keys)])
-    (aset js/localStorage storage-key
-      (->>
-        (select-keys @repo non-clearing-keys)
-        (merge empty-repo)
-        (reset! repo)))))
+    (->>
+     (select-keys @repo non-clearing-keys)
+     (merge empty-repo)
+     (reset! repo))))
 
 (defn save-scan [val]
   (append-to-local-collection :scans val))
