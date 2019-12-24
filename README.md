@@ -10,9 +10,13 @@ to maintain in vanilla Javascript.
 
 ## Development
 
-To get an interactive development environment run:
+To get an interactive development environment using `lein` run:
 
     lein fig:build
+
+To get an interactive development environment using `clj` run:
+
+    clj -A:build-dev
 
 This will auto compile and send all changes to the browser without the
 need to reload. After the compilation process is complete, you will
