@@ -1,0 +1,22 @@
+{
+ 
+ :deps
+ {com.andrewmcveigh/cljs-time {:mvn/version "0.5.2"}
+  rum {:mvn/version "0.11.2"}
+  nrepl {:mvn/version "0.6.0"}
+
+  
+  com.bhauman/figwheel-main {:mvn/version "0.1.9"}
+  com.bhauman/rebel-readline-cljs {:mvn/version "0.1.4"}}
+
+ :paths ["src" "target" "resources"]
+ 
+ :aliases
+ {:dev
+  {:extra-deps {figwheel-sidecar {:mvn/version "0.5.16"}}}
+  
+  :build-dev
+  {:main-opts ["-m" "figwheel.main" "--build" "dev" "--repl"]}
+  
+  :build-min
+  {:main-opts ["-m" "figwheel.main" "-O" "advanced" "-bo" "min"]}}}

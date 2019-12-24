@@ -1,5 +1,6 @@
 (ns sparttt.stage-conductor
   (:require
+    [cljs-time.core :as t]
     [rum.core :as rum]
     [sparttt.stage :as stage]
     [sparttt.ui-elements :as ui-e]))
@@ -57,7 +58,7 @@
           (= :show))
       [:div
        [:div.foot.comfort.shadow.with-gradient
-        "Spartan Harriers"]]))
+        "Spartan Harriers - " (str (t/year (t/now)))]]))
 
 (rum/defc draw-stage < rum/reactive
   []
