@@ -99,14 +99,13 @@
                {:timestamp now
                 :duration duration}))})]]]))
 
-(stage/register-scene
- (stage/configure-scene
-  :timer
-  {:layout
-   {:navbar {:index 2 :visibility :show}
-    :header {:title "Timer"}
-    :content {:class [:grid-container]}
-    :footer {:visibility :hide}
-    :graphics {:icon :stopwatch}}
-    
-   :scene #'scene}))
+(defn scene-data []
+  {:timer
+   {:layout
+    {:navbar {:index 2 :visibility :show}
+     :header {:title "Timer"}
+     :content {:class [:grid-container]}
+     :footer {:visibility :hide}
+     :graphics {:icon :stopwatch}}
+
+    :scene #'scene}})

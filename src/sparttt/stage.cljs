@@ -56,15 +56,20 @@
       (js/alert message))))
 
 (defn register-scene
-  "Registers scene to stage/scene-cursor.
-
-  Until figured out, it's compulsory to require the
-  namespace in sparttt.app so the scenes' registrations
-  get triggered."
+  "Registers scene to stage/scene-cursor."
 
   [scene-config]
   (println "Registering scene: " (keys scene-config))
   (swap! scene-cursor merge scene-config))
+
+(defn register-scenes [scenes]
+  (reset! scene-cursor {})
+  (->>
+   scenes
+   (map (comp first vec apply))
+   (map (fn [[k v]] (configure-scene k v)))
+   (map register-scene)
+   doall))
 
 (defn scene-for
   [active-key]

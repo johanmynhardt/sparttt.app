@@ -60,9 +60,9 @@
        [:div.foot.comfort.shadow.with-gradient
         "Spartan Harriers - " (str (t/year (t/now)))]]))
 
-(rum/defc draw-stage < rum/reactive
+(rum/defc draw-stage < rum/reactive [scenes]
   []
-
+  (stage/register-scenes scenes)
   (let []
     [:div.grid-container
 

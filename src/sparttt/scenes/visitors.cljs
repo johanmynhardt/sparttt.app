@@ -104,12 +104,11 @@
             (fn [{:keys [ident first-name last-name]}]
               [:tr [:td ident] [:td first-name] [:td last-name]])))]]])]))
 
-(stage/register-scene
- (stage/configure-scene
-  :visitors
-  {:layout
-   {:navbar {:index 4}
-    :header {:title "Visitors"}
-    :graphics {:icon :handshake}}
-   
-   :scene #'scene}))
+(defn scene-data []
+  {:visitors
+   {:layout
+    {:navbar {:index 4}
+     :header {:title "Visitors"}
+     :graphics {:icon :handshake}}
+
+    :scene #'scene}})

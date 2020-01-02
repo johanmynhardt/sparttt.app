@@ -24,12 +24,11 @@
          [:tr
           [:td seq] [:td name] [:td id]])]]]))
 
-(stage/register-scene
- (stage/configure-scene
-  :home
-  {:layout
-   {:navbar {:index 0}
-    :header {:title "Home"}
-    :graphics {:icon :home}}
-    
-   :scene #'scene}))
+(defn scene-data []
+  {:home 
+   {:layout
+    {:navbar {:index 0}
+     :header {:title "Home"}
+     :graphics {:icon :home}}
+
+    :scene #'scene}})

@@ -212,12 +212,11 @@
            #(repository/purge
               (js/confirm "All the data will be wiped! Are you sure?"))})]]]]))
 
-(stage/register-scene
- (stage/configure-scene
-  :settings
-  {:layout
-   {:navbar {:index 3}
-    :header {:title "Settings"}
-    :graphics {:icon :cog}}
-   
-   :scene #'scene}))
+(defn scene-data []
+  {:settings
+   {:layout
+    {:navbar {:index 3}
+     :header {:title "Settings"}
+     :graphics {:icon :cog}}
+
+    :scene #'scene}})

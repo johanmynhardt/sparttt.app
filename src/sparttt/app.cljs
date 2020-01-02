@@ -1,24 +1,33 @@
 (ns ^:figwheel-hooks sparttt.app
   (:require
-    [goog.dom :as gdom]
-    [rum.core :as rum]
-    [sparttt.stage-conductor :as stage-conductor]
-    [sparttt.scenes.scan]
-    [sparttt.scenes.home]
-    [sparttt.scenes.settings]
-    [sparttt.scenes.visitors]
-    [sparttt.scenes.consolidate]
-    [sparttt.scenes.timer :as timer]
-    [sparttt.repository :as repository]
-    [sparttt.ui-elements :as ui]))
+   [goog.dom :as gdom]
+   [rum.core :as rum]
+   [sparttt.stage-conductor :as stage-conductor]
+   [sparttt.scenes.scan]
+   [sparttt.scenes.home]
+   [sparttt.scenes.settings]
+   [sparttt.scenes.visitors]
+   [sparttt.scenes.consolidate]
+   [sparttt.scenes.timer :as timer]
+   [sparttt.stage]
+   [sparttt.repository :as repository]
+   [sparttt.ui-elements :as ui]))
 
 (println "This text is printed from src/sparttt/app.cljs. Go ahead and edit it and see reloading in action.")
+
+(def stages
+  [#'sparttt.scenes.home/scene-data
+   #'sparttt.scenes.scan/scene-data
+   #'sparttt.scenes.settings/scene-data
+   #'sparttt.scenes.timer/scene-data
+   #'sparttt.scenes.consolidate/scene-data
+   #'sparttt.scenes.visitors/scene-data])
 
 (defn get-app-element []
   (gdom/getElement "app"))
 
 (rum/defc sparttt-app < rum/reactive []
-  (stage-conductor/draw-stage))
+  (stage-conductor/draw-stage stages))
 
 (defn mount [el]
   (rum/mount (sparttt-app) el))
@@ -34,11 +43,10 @@
 
 ;; specify reload hook with ^;after-load metadata
 (defn ^:after-load on-reload []
-  (mount-app-element)
   ;; optionally touch your app-state to force rerendering depending on
   ;; your application
-  ;; (swap! app-state update-in [:__figwheel_counter] inc)
-)
+  (swap! sparttt.state/app-state update-in [:__figwheel_counter] inc)
+  (mount-app-element))
 
 ;; needs to run on first load to hydrate repo from localStorage
 (repository/restore-from-local-storage)

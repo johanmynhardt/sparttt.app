@@ -234,13 +234,12 @@
                 (swap! stage/scene-cursor assoc-in [:scan :layout :navbar :visibility] :show
             ))})])]))
 
-(stage/register-scene
- (stage/configure-scene
-  :scan
-  {:layout
-   {:navbar {:index 1 :visibility :show}
-    :header {:title "Capture QR"}
-    :footer {:visibility :hide}
-    :graphics {:icon :address-card}}
-    
-   :scene #'scene}))
+(defn scene-data []
+  {:scan 
+   {:layout
+    {:navbar {:index 1 :visibility :show}
+     :header {:title "Capture QR"}
+     :footer {:visibility :hide}
+     :graphics {:icon :address-card}}
+
+    :scene #'scene}})

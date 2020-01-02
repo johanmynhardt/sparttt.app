@@ -412,13 +412,12 @@
            [:td (or name "--")]])]]])])
 
 
-(stage/register-scene
- (stage/configure-scene
-  :consolidate
-  {:layout
-   {:navbar {:index 5}
-    :header {:title "Consolidate Data"}
-    :footer {:visibility :hide}
-    :graphics {:icon :sort-amount-down}}
-   
-   :scene #'scene}))
+(defn scene-data []
+  {:consolidate
+   {:layout
+    {:navbar {:index 5}
+     :header {:title "Consolidate Data"}
+     :footer {:visibility :hide}
+     :graphics {:icon :sort-amount-down}}
+
+    :scene #'scene}})
