@@ -138,30 +138,46 @@
            (let [v (-> e (.-target) (.-value))
                  selected
                  (reset! selected-camera
-                   (if (str/blank? v)
-                     ""
-                     (str/trim v)))]
+                         (if (str/blank? v)
+                           ""
+                           (str/trim v)))]
              (when (pos? (count selected))
                (->
-                 (Instascan.Camera/getCameras)
-                 (.then
-                   (fn [cms]
-                     (let [cam
-                           (first (filter #(= selected (.-id %)) cms))]
-                       (println "setting in atom: " (.-name cam))
-                       (when cam
-                         (println "cam.id: " (.-id cam))
-                         (println "cam.name: " (.-name cam))
-                         (repository/save-camera-id (.-id cam))
-                         (reset! selected-camera-inst cam)))))))))
+                (Instascan.Camera/getCameras)
+                (.then
+                 (fn [cms]
+                   (let [cam
+                         (first (filter #(= selected (.-id %)) cms))]
+                     (println "setting in atom: " (.-name cam))
+                     (when cam
+                       (println "cam.id: " (.-id cam))
+                       (println "cam.name: " (.-name cam))
+                       (repository/save-camera-id (.-id cam))
+                       (reset! selected-camera-inst cam)))))))))
 
          :value (or (repository/camera-id) cam "")}
         (conj
-          (map
-            (fn [cam]
-              [:option {:value (:id cam)} (:name cam)])
-            cameras)
-          [:option {:value ""} "Please select"])]]]
+         (map
+          (fn [cam]
+            [:option {:value (:id cam)} (:name cam)])
+          cameras)
+         [:option {:value ""} "Please select"])]]]
+     
+     [:div.card
+      [:div.title [:li.fas.fa-ruler-horizontal] " " "Distance"]
+      [:div.content
+       [:select.select
+        {:value (or (-> @repository/repo :capture-distance) "")
+         :on-change
+         #(let [v (-> % .-target .-value)]
+            (swap! repository/repo update-in
+                   [:capture-distance]
+                   (fn [was]
+                   (println was " -> " v)
+                     v)))}
+        [:option {:value ""} "Select distance"]
+        [:option {:value "5km"} "5km"]
+        [:option {:value "8km"} "8km"]]]]
 
      [:div.card
       [:div.title [:li.fas.fa-database] " " "Data"]
@@ -169,32 +185,32 @@
 
        [:div [:p "Export:"]
         (ui/button "Repository"
-          {:icon :database
-           :on-click
-           #(browser-assist/initiate-download :edn @repository/repo
-              (str "repo-data-" (time.coerce/to-local-date (time/now))))})
+                   {:icon :database
+                    :on-click
+                    #(browser-assist/initiate-download :edn @repository/repo
+                                                       (str "repo-data-" (time.coerce/to-local-date (time/now))))})
 
         (ui/button "Laps"
-          {:icon :list
-           :on-click
-           #(browser-assist/initiate-download
-             :csv (laps-csv)
-             (str "laps-data-" (time.coerce/to-local-date (time/now))))})
+                   {:icon :list
+                    :on-click
+                    #(browser-assist/initiate-download
+                      :csv (laps-csv)
+                      (str "laps-data-" (time.coerce/to-local-date (time/now))))})
 
         (ui/button "Scans"
-          {:icon :address-card
-           :on-click
-           #(browser-assist/initiate-download
-             :csv (scans-csv)
-             (str "scan-data-" (time.coerce/to-local-date (time/now))))})
+                   {:icon :address-card
+                    :on-click
+                    #(browser-assist/initiate-download
+                      :csv (scans-csv)
+                      (str "scan-data-" (time.coerce/to-local-date (time/now))))})
 
         (ui/button "Visitors"
-          {:icon :handshake
-           :on-click
-           #(browser-assist/initiate-form-post-download
-             :csv
-             (visitors-csv)
-              (str "visitor-data-" (time.coerce/to-local-date (time/now))))})]
+                   {:icon :handshake
+                    :on-click
+                    #(browser-assist/initiate-form-post-download
+                      :csv
+                      (visitors-csv)
+                      (str "visitor-data-" (time.coerce/to-local-date (time/now))))})]
 
        [:div [:p "Backend Synchronization"]
         (ui/input app-key "Key") [:br]
@@ -206,11 +222,11 @@
 
        [:div [:p "Clean up:"]
         (ui/button "Purge Data"
-          {:icon :trash
-           :class [:warn]
-           :on-click
-           #(repository/purge
-              (js/confirm "All the data will be wiped! Are you sure?"))})]]]]))
+                   {:icon :trash
+                    :class [:warn]
+                    :on-click
+                    #(repository/purge
+                      (js/confirm "All the data will be wiped! Are you sure?"))})]]]]))
 
 (defn scene-data []
   {:settings
