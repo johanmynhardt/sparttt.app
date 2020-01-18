@@ -118,7 +118,11 @@
 
 (defn persist-details []
   (let [value
-        {:athlete @athlete-details
+        {:athlete
+         (if-not (empty? (-> @repository/repo :capture-distance))
+           (assoc @athlete-details
+                  :dist (keyword (-> @repository/repo :capture-distance))) 
+           @athlete-details)
          :seq @athlete-sequence
          :tstamp (time/now)}]
     (repository/save-scan value)

@@ -85,13 +85,14 @@
             (->> 
              data
              (map
-              (fn [[seq name id timestamp :as scan]]
+              (fn [[seq name id timestamp dist :as scan]]
                 (println "processing scan: " scan)
                 [(if (re-matches #"\d+" seq) (js/parseInt seq) seq)
                  {:id id
                   :seq (if (re-matches #"\d+" seq) (js/parseInt seq) seq)
                   :name name
-                  :timestamp timestamp}]))
+                  :timestamp timestamp
+                  :dist (when dist (str/replace dist #"\:" ""))}]))
              (into {}))))
          (reduce merge))]
     raw-map))
@@ -133,7 +134,7 @@
         (assoc acc idx
                (merge 
                 lap
-                (select-keys found-scan [:id :name :seq]))))) 
+                (select-keys found-scan [:id :name :seq :dist]))))) 
     {})
    (map
     (fn [[idx {:keys [id] :as data} :as entry]]
@@ -158,8 +159,8 @@
 (defn extract-data [results]
   (->>
    results 
-   (cons {:seqs "Position" :duration-string "Time" :name "Name"})
-   (map (juxt :seqs :duration-string :name))))
+   (cons {:seqs "Position" :duration-string "Time" :name "Name" :dist "Dist"})
+   (map (juxt :seqs :duration-string :name :dist))))
 
 
 (defn render-data-text [results]
