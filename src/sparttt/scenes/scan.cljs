@@ -121,7 +121,8 @@
         {:athlete
          (if-not (empty? (-> @repository/repo :capture-distance))
            (assoc @athlete-details
-                  :dist (keyword (-> @repository/repo :capture-distance))) 
+                  :dist (keyword (-> @repository/repo :capture-distance))
+                  :disc (keyword (-> @repository/repo :capture-discipline))) 
            @athlete-details)
          :seq @athlete-sequence
          :tstamp (time/now)}]

@@ -7,7 +7,9 @@
   [:camera-id
    :app-key
    :device-uuid
-   :event-key])
+   :event-key
+   :capture-distance
+   :capture-discipline])
 
 (defonce empty-repo
   {:app-key ""

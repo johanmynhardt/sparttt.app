@@ -70,9 +70,9 @@
    (:scans @repository/repo)
    (as-csv
     (juxt :seq :athlete)
-    (fn [[{:keys [seq]} {:keys [name id tstamp dist]}]]
-      [(if (= :genesis seq) 0 seq) name id (time.coerce/to-string tstamp) (or dist "")])
-    ["seq" "name" "id" "timestamp" "distance"])))
+    (fn [[{:keys [seq]} {:keys [name id tstamp dist disc]}]]
+      [(if (= :genesis seq) 0 seq) name id (time.coerce/to-string tstamp) (or dist "") (or disc "")])
+    ["seq" "name" "id" "timestamp" "distance" "discipline"])))
 
 (defn visitors-csv []
   (->>
@@ -167,17 +167,31 @@
       [:div.title [:li.fas.fa-ruler-horizontal] " " "Distance"]
       [:div.content
        [:select.select
-        {:value (or (-> @repository/repo :capture-distance) "")
+        {:value (or (-> @repository/repo :capture-distance) "5km")
          :on-change
          #(let [v (-> % .-target .-value)]
             (swap! repository/repo update-in
                    [:capture-distance]
                    (fn [was]
-                   (println was " -> " v)
+                     (println was " -> " v)
                      v)))}
-        [:option {:value ""} "Select distance"]
         [:option {:value "5km"} "5km"]
         [:option {:value "8km"} "8km"]]]]
+
+     [:div.card
+      [:div.title [:li.fas.fa-running] " " "Discipline"]
+      [:div.content
+       [:select.select
+        {:value (or (-> @repository/repo :capture-discipline) "running")
+         :on-change
+         #(let [v (-> % .-target .-value)]
+            (swap! repository/repo update-in
+                   [:capture-discipline]
+                   (fn [was]
+                     (println was " -> " v)
+                     v)))}
+        [:option {:value "running"} "running"]
+        [:option {:value "walking"} "walking"]]]]
 
      [:div.card
       [:div.title [:li.fas.fa-database] " " "Data"]

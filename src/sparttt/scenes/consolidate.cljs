@@ -85,14 +85,15 @@
             (->> 
              data
              (map
-              (fn [[seq name id timestamp dist :as scan]]
+              (fn [[seq name id timestamp dist disc :as scan]]
                 (println "processing scan: " scan)
                 [(if (re-matches #"\d+" seq) (js/parseInt seq) seq)
                  {:id id
                   :seq (if (re-matches #"\d+" seq) (js/parseInt seq) seq)
                   :name name
                   :timestamp timestamp
-                  :dist (when dist (str/replace dist #"\:" ""))}]))
+                  :dist (when dist (str/replace dist #"\:" ""))
+                  :disc (when disc (str/replace disc #"\:" ""))}]))
              (into {}))))
          (reduce merge))]
     raw-map))
@@ -134,7 +135,7 @@
         (assoc acc idx
                (merge 
                 lap
-                (select-keys found-scan [:id :name :seq :dist]))))) 
+                (select-keys found-scan [:id :name :seq :dist :disc]))))) 
     {})
    (map
     (fn [[idx {:keys [id] :as data} :as entry]]
@@ -159,8 +160,8 @@
 (defn extract-data [results]
   (->>
    results 
-   (cons {:seqs "Position" :duration-string "Time" :name "Name" :dist "Dist"})
-   (map (juxt :seqs :duration-string :name :dist))))
+   (cons {:seqs "Position" :duration-string "Time" :name "Name" :dist "Dist" :disc "Disc"})
+   (map (juxt :seqs :duration-string :name :dist :disc))))
 
 
 (defn render-data-text [results]
@@ -272,12 +273,12 @@
     [:p "Choose origin of data:" ]
     (let [source (rum/react source-cursor)]
       [[:select.select
-        {:value (rum/react source-cursor)
+        {:value (or (rum/react source-cursor) "")
          :on-change
          (fn [e]
            (println "source change: " (reset! source-cursor (keyword (-> e .-target .-value)))))}
-        [:option {:value :local :selected (= :local source)} "File/s on device"]
-        [:option {:value :cloud :selected (= :cloud source)} "Sync using event key"]]
+        [:option {:value :local} "File/s on device"]
+        [:option {:value :cloud} "Sync using event key"]]
 
        (cond
          (= :cloud (rum/react source-cursor))
