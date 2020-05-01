@@ -4,8 +4,8 @@ const AWS = require('aws-sdk');
 const s3 = new AWS.S3();
 
 const config = {
-  bucket: 'spartan-harriers',
-  context:'timetrial-serverless'
+  bucket: 'sparttt-data',
+  context:'timetrial'
 };
 
 module.exports.eventUpload = (event, context, callback) => {

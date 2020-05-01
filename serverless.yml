@@ -18,7 +18,7 @@ provider:
         - 's3:PutObject'
         - 's3:Get*'
         - 's3:List*'
-      Resource: 'arn:aws:s3:::spartan-harriers*'
+      Resource: 'arn:aws:s3:::sparttt-data*'
 
 # The `functions` block defines what code to deploy
 functions:
