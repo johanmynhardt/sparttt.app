@@ -1,0 +1,38 @@
+service: sparttt-aws-api
+
+package:
+  exclude:
+    - ./**
+  include:
+    - src/api.js
+
+# The `provider` block defines where your service will be deployed
+provider:
+  name: aws
+  runtime: nodejs12.x
+  profile: jo 
+  region: af-south-1
+  iamRoleStatements:
+    - Effect: 'Allow'
+      Action:
+        - 's3:PutObject'
+        - 's3:Get*'
+        - 's3:List*'
+      Resource: 'arn:aws:s3:::spartan-harriers*'
+
+# The `functions` block defines what code to deploy
+functions:
+  eventUpload:
+    handler: src/api.eventUpload
+    events:
+      - http:
+          path: '/events/{eventId}/upload'
+          method: POST
+          cors: true
+  forConsolidation:
+    handler: src/api.forConsolidation
+    events:
+      - http:
+          path: '/events/{eventId}/for-consolidation'
+          method: GET
+          cors: true
