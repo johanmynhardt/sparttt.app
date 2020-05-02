@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 
+if [[ ! -z "$STAGE" ]]; then
+  STAGE="-${STAGE}"
+fi
+
 LOBASE=./resources/public
-S3BASE=s3://spartan-harriers/qrv2
+S3BASE=s3://spartan-harriers/qrv2${STAGE:-}
+echo "S3BASE: ${S3BASE}"
 
 #aws s3 sync ${LOBASE} ${S3BASE} \
 #	--dryrun \
@@ -25,6 +30,9 @@ aws s3 sync $LOBASE/favicon $S3BASE/favicon --acl public-read
 
 echo synching index.html
 aws s3 sync $LOBASE $S3BASE --exclude '*' --include "index.html" --acl public-read
+
+echo synching aws.edn
+aws s3 sync $LOBASE $S3BASE --exclude '*' --include "aws.edn" --acl public-read
 
 echo synching service-worker.js
 aws s3 sync $LOBASE $S3BASE --exclude '*' --include 'service-worker.js' --acl public-read 

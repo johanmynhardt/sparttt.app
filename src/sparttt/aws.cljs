@@ -2,6 +2,7 @@
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require
    [clojure.string :as str]
+   [cljs.reader :as reader]
    [cljs.core.async :refer [<!]]
    [cljs-http.client :as http]))
 
@@ -19,14 +20,17 @@
     (let [response (<! (http/get uri))]
       (cond
         (:success response)
-        (reset! config (merge @config (:body response)))
+        (let [_ (println "got response: " response)
+              updated
+              (reset! config (merge @config (reader/read-string (:body response))))]
+          (println "Config updated to: " updated))
         :else
         (js/console.log
          "Could not update config"
          (clj->js
           (select-keys response [:status :error-text :body])))))))
 
-(config-from-edn "/aws.edn")
+(config-from-edn "aws.edn")
 
 (defn build-uri [& path-parts]
   (let [{:keys [api region stage]} @config
