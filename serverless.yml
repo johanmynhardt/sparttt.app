@@ -28,7 +28,10 @@ functions:
       - http:
           path: '/events/{eventId}/upload'
           method: POST
-          cors: true
+          cors:
+            origin: '*'
+            headers: 
+              - x-filename
   forConsolidation:
     handler: src/api.forConsolidation
     events:
