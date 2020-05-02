@@ -17,3 +17,4 @@ resources/public/cljs-out/
 dev/dev-key.pem
 resources/public/dev-key.pem
 resources/public/simple-https-server.py
+.serverless/
